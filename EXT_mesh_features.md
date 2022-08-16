@@ -85,7 +85,7 @@ Add ExtMeshFeatures.cs in Schema2 folder
 
 3] Use extension in Example1 code
 
-````
+```
 // EXT_Mesh_Features
 model.UseExtension<ExtMeshFeatures>();
 model.UseExtension<EXT_mesh_featuresextensionforEXT_mesh_gpu_instancing>();
