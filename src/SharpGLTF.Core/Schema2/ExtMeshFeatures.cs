@@ -3,33 +3,33 @@
 namespace SharpGLTF.Schema2
 {
     // For ModelRoot
-    public sealed partial class ExtMeshFeatures
+    public sealed partial class ModelExtMeshFeatures
     {
-        internal ExtMeshFeatures(ModelRoot modelRoot)
+        internal ModelExtMeshFeatures(ModelRoot modelRoot)
         {
         }
     }
 
     // For Node
-    public sealed partial class EXT_mesh_featuresextensionforEXT_mesh_gpu_instancing 
+    public sealed partial class NodeExtMeshFeatures
     {
-        internal EXT_mesh_featuresextensionforEXT_mesh_gpu_instancing(Node node)
+        internal NodeExtMeshFeatures(Node node)
         {
         }
     }
 
     // For Mesh
-    public sealed partial class EXT_mesh_featuresglTFMeshPrimitiveextension
+    public sealed partial class MeshExtMeshFeatures
     {
-        internal EXT_mesh_featuresglTFMeshPrimitiveextension(Mesh mesh)
+        internal MeshExtMeshFeatures(Mesh mesh)
         {
         }
     }
 
     // For Primitive
-    public sealed partial class EXT_mesh_featuresglTFPrimitiveextension
+    public sealed partial class PrimitiveExtMeshFeatures
     {
-        internal EXT_mesh_featuresglTFPrimitiveextension(MeshPrimitive prim) { }
+        internal PrimitiveExtMeshFeatures(MeshPrimitive prim) { }
 
     }
 }

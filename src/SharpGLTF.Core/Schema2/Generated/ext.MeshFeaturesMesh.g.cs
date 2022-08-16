@@ -106,7 +106,7 @@ namespace SharpGLTF.Schema2
 	/// <summary>
 	/// An object describing feature IDs for a mesh primitive.
 	/// </summary>
-	partial class EXT_mesh_featuresglTFMeshPrimitiveextension : ExtraProperties
+	partial class MeshExtMeshFeatures : ExtraProperties
 	{
 	
 		private const int _featureIdsMinItems = 1;

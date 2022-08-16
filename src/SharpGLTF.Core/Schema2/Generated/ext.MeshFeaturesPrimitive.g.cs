@@ -30,7 +30,7 @@ namespace SharpGLTF.Schema2
 	/// <summary>
 	/// `EXT_mesh_features` extension for a primitive in a glTF model, to associate it with the root `EXT_mesh_features` object.
 	/// </summary>
-	partial class EXT_mesh_featuresglTFPrimitiveextension : ExtraProperties
+	partial class PrimitiveExtMeshFeatures : ExtraProperties
 	{
 	
 		private const int _featureIdsMinItems = 1;

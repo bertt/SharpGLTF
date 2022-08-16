@@ -13,7 +13,10 @@ namespace SharpGLTF
         private static string MeshSchemaUri => Constants.VendorExtensionPath("EXT_mesh_features", "mesh.primitive.EXT_mesh_features.schema.json");
         public override void PrepareTypes(CSharpEmitter newEmitter, SchemaType.Context ctx)
         {
-            newEmitter.SetRuntimeName("EXT_mesh_features glTF extension", "ExtMeshFeatures");
+            newEmitter.SetRuntimeName("EXT_mesh_features glTF extension", "ModelExtMeshFeatures");
+            newEmitter.SetRuntimeName("EXT_mesh_features extension for EXT_mesh_gpu_instancing", "NodeExtMeshFeatures");
+            newEmitter.SetRuntimeName("EXT_mesh_features glTF Mesh Primitive extension", "MeshExtMeshFeatures");
+            newEmitter.SetRuntimeName("EXT_mesh_features glTF Primitive extension", "PrimitiveExtMeshFeatures");
         }
 
         public override IEnumerable<(string TargetFileName, SchemaType.Context Schema)> Process()

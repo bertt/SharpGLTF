@@ -436,7 +436,7 @@ namespace SharpGLTF.Schema2
 	/// <summary>
 	/// glTF extension that assigns properties to features in a model.
 	/// </summary>
-	partial class ExtMeshFeatures : ExtraProperties
+	partial class ModelExtMeshFeatures : ExtraProperties
 	{
 	
 		private const int _propertyTablesMinItems = 1;

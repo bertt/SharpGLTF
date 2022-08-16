@@ -48,10 +48,24 @@ namespace Example1
             var model = scene.ToGltf2();
 
             // EXT_Mesh_Features
-            model.UseExtension<ExtMeshFeatures>();
-            model.UseExtension<EXT_mesh_featuresextensionforEXT_mesh_gpu_instancing>();
-            model.UseExtension<EXT_mesh_featuresglTFMeshPrimitiveextension>();
-            model.UseExtension<EXT_mesh_featuresglTFPrimitiveextension>();
+            model.UseExtension<ModelExtMeshFeatures>();
+            //model.UseExtension<EXT_mesh_featuresextensionforEXT_mesh_gpu_instancing>();
+            //model.UseExtension<EXT_mesh_featuresglTFMeshPrimitiveextension>();
+            // Following line gives an exception...
+            model.UseExtension<PrimitiveExtMeshFeatures>();
+
+            /**
+             *   "meshes" : [ {
+    "primitives" : [ {
+      "extensions" : {
+        "EXT_mesh_features" : {
+          "featureIds" : [ {
+            "featureCount" : 4,
+            "attribute" : 0
+          } ]
+        }
+      },
+            */
 
             model.SaveAsWavefront("mesh.obj");
             model.SaveGLB("mesh.glb");

@@ -30,7 +30,7 @@ namespace SharpGLTF.Schema2
 	/// <summary>
 	/// An object describing per-instance feature IDs to be used as indices to property arrays in the property table.
 	/// </summary>
-	partial class EXT_mesh_featuresextensionforEXT_mesh_gpu_instancing : ExtraProperties
+	partial class NodeExtMeshFeatures : ExtraProperties
 	{
 	
 		private const int _featureIdsMinItems = 1;
