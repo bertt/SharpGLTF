@@ -237,7 +237,7 @@ namespace SharpGLTF.Schema2
 	/// <summary>
 	/// An object defining the values of an enum.
 	/// </summary>
-	partial class Enum : ExtraProperties
+	partial class Enumeration : ExtraProperties
 	{
 	
 		private String _description;
@@ -284,7 +284,7 @@ namespace SharpGLTF.Schema2
 		
 		private String _description;
 		
-		private Dictionary<String,Enum> _enums;
+		private Dictionary<String,Enumeration> _enums;
 		
 		private String _name;
 		
@@ -307,7 +307,7 @@ namespace SharpGLTF.Schema2
 			{
 				case "classes": DeserializePropertyDictionary<Class>(ref reader, _classes); break;
 				case "description": _description = DeserializePropertyValue<String>(ref reader); break;
-				case "enums": DeserializePropertyDictionary<Enum>(ref reader, _enums); break;
+				case "enums": DeserializePropertyDictionary<Enumeration>(ref reader, _enums); break;
 				case "name": _name = DeserializePropertyValue<String>(ref reader); break;
 				case "version": _version = DeserializePropertyValue<String>(ref reader); break;
 				default: base.DeserializeProperty(jsonPropertyName,ref reader); break;

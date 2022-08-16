@@ -17,6 +17,7 @@ namespace SharpGLTF
             newEmitter.SetRuntimeName("EXT_mesh_features extension for EXT_mesh_gpu_instancing", "NodeExtMeshFeatures");
             newEmitter.SetRuntimeName("EXT_mesh_features glTF Mesh Primitive extension", "MeshExtMeshFeatures");
             newEmitter.SetRuntimeName("EXT_mesh_features glTF Primitive extension", "PrimitiveExtMeshFeatures");
+            newEmitter.SetRuntimeName("Enum", "Enumeration");
         }
 
         public override IEnumerable<(string TargetFileName, SchemaType.Context Schema)> Process()

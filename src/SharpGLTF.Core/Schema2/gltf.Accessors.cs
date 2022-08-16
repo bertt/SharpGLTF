@@ -98,14 +98,14 @@ namespace SharpGLTF.Schema2
             if (_CachedType.HasValue)
             {
                 #if DEBUG
-                var parsedType = System.Enum.TryParse<DimensionType>(this._type, out var rr) ? rr : DimensionType.CUSTOM;
+                var parsedType = Enum.TryParse<DimensionType>(this._type, out var rr) ? rr : DimensionType.CUSTOM;
                 System.Diagnostics.Debug.Assert(_CachedType.Value == parsedType);
                 #endif
 
                 return _CachedType.Value;
             }
 
-            _CachedType = System.Enum.TryParse<DimensionType>(this._type, out var r) ? r : DimensionType.CUSTOM;
+            _CachedType = Enum.TryParse<DimensionType>(this._type, out var r) ? r : DimensionType.CUSTOM;
 
             return _CachedType.Value;
         }
@@ -192,7 +192,7 @@ namespace SharpGLTF.Schema2
             this._count = itemCount;
 
             this._CachedType = dimensions;
-            this._type = System.Enum.GetName(typeof(DimensionType), dimensions);
+            this._type = Enum.GetName(typeof(DimensionType), dimensions);
 
             this._componentType = encoding;
             this._normalized = normalized.AsNullable(_normalizedDefault);

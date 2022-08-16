@@ -99,7 +99,7 @@ namespace SharpGLTF.Schema2
         /// <summary>
         /// Gets the type of light.
         /// </summary>
-        public PunctualLightType LightType => string.IsNullOrEmpty(_type) ? PunctualLightType.Directional : (PunctualLightType)System.Enum.Parse(typeof(PunctualLightType), _type, true);
+        public PunctualLightType LightType => string.IsNullOrEmpty(_type) ? PunctualLightType.Directional : (PunctualLightType)Enum.Parse(typeof(PunctualLightType), _type, true);
 
         /// <summary>
         /// Gets the Angle, in radians, from centre of spotlight where falloff begins.
