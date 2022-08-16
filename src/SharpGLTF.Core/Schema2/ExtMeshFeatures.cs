@@ -11,19 +11,10 @@ namespace SharpGLTF.Schema2
     }
 
     // For Node
-    public sealed partial class EXT_mesh_featuresextensionforEXT_mesh_gpu_instancing : IChildOf<ExtMeshFeatures>
+    public sealed partial class EXT_mesh_featuresextensionforEXT_mesh_gpu_instancing 
     {
         internal EXT_mesh_featuresextensionforEXT_mesh_gpu_instancing(Node node)
         {
-        }
-        public int LogicalIndex { get; private set; } = -1;
-
-        public ExtMeshFeatures LogicalParent { get; private set; }
-
-        public void _SetLogicalParent(ExtMeshFeatures parent, int index)
-        {
-            LogicalParent = parent;
-            LogicalIndex = index;
         }
     }
 
