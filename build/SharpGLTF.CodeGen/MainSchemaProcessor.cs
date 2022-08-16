@@ -89,7 +89,13 @@ namespace SharpGLTF
             newEmitter.SetRuntimeName("CUBICSPLINE-LINEAR-STEP", "AnimationInterpolationMode");
             newEmitter.SetRuntimeName("LINEAR-NEAREST", "TextureInterpolationFilter");
             newEmitter.SetRuntimeName("CLAMP_TO_EDGE-MIRRORED_REPEAT-REPEAT", "TextureWrapMode");
-            newEmitter.SetRuntimeName("LINEAR-LINEAR_MIPMAP_LINEAR-LINEAR_MIPMAP_NEAREST-NEAREST-NEAREST_MIPMAP_LINEAR-NEAREST_MIPMAP_NEAREST", "TextureMipMapFilter");                        
+            newEmitter.SetRuntimeName("LINEAR-LINEAR_MIPMAP_LINEAR-LINEAR_MIPMAP_NEAREST-NEAREST-NEAREST_MIPMAP_LINEAR-NEAREST_MIPMAP_NEAREST", "TextureMipMapFilter");
+
+            // EXT_mesh_features types
+            newEmitter.SetRuntimeName("ARRAY-MAT2-MAT3-MAT4-SINGLE-VEC2-VEC3-VEC4", "ClassPropertyType");
+            newEmitter.SetRuntimeName("BOOLEAN-ENUM-FLOAT32-FLOAT64-INT16-INT32-INT64-INT8-STRING-UINT16-UINT32-UINT64-UINT8", "ElementComponentType");
+            newEmitter.SetRuntimeName("INT16-INT32-INT64-INT8-UINT16-UINT32-UINT64-UINT8", "IntegerType");
+            newEmitter.SetRuntimeName("UINT16-UINT32-UINT64-UINT8", "OffsetBufferViewType");
 
             var meshClass = ctx.FindClass("Mesh");
             if (meshClass != null)

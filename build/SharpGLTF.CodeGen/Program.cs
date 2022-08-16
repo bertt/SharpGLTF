@@ -58,6 +58,9 @@ namespace SharpGLTF
             processors.Add(new AgiArticulationsExtension());
             processors.Add(new AgiStkMetadataExtension());
 
+            processors.Add(new ExtMeshFeaturesExtension());
+
+
             // ----------------------------------------------  process all files
 
             var processes = processors.SelectMany(item => item.Process());
