@@ -46,6 +46,13 @@ namespace Example1
             // save the model in different formats
 
             var model = scene.ToGltf2();
+
+            // EXT_Mesh_Features
+            model.UseExtension<ExtMeshFeatures>();
+            model.UseExtension<EXT_mesh_featuresextensionforEXT_mesh_gpu_instancing>();
+            model.UseExtension<EXT_mesh_featuresglTFMeshPrimitiveextension>();
+            model.UseExtension<EXT_mesh_featuresglTFPrimitiveextension>();
+
             model.SaveAsWavefront("mesh.obj");
             model.SaveGLB("mesh.glb");
             model.SaveGLTF("mesh.gltf");

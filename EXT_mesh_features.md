@@ -2,6 +2,8 @@
 
 Specs: https://github.com/CesiumGS/glTF/blob/proposal-EXT_mesh_features/extensions/2.0/Vendor/EXT_mesh_features/README.md
 
+--------------------------------------------------------------------------------------------------------------------------
+
 Code generation
 
 In this step the JSON schema's are converted to C# code
@@ -61,3 +63,34 @@ To:
 private Int32[] _channels = _channelsDefault;
 ```
 
+--------------------------------------------------------------------------------------------------------------------------
+
+Using Extensions
+
+1] Register
+
+Register extension in gltf.ExtensionsFactory.cs:
+
+```
+// EXT_Mesh_Features
+RegisterExtension<ModelRoot, ExtMeshFeatures>("EXT_MeshFeatures");
+RegisterExtension<Node, EXT_mesh_featuresextensionforEXT_mesh_gpu_instancing>("EXT_MeshFeatures");
+RegisterExtension<Mesh, EXT_mesh_featuresglTFMeshPrimitiveextension>("EXT_MeshFeatures");
+RegisterExtension<MeshPrimitive, EXT_mesh_featuresglTFPrimitiveextension>("EXT_MeshFeatures");
+```
+
+2] ExtMeshFeatures.cs
+
+Add ExtMeshFeatures.cs in Schema2 folder
+
+3] Use extension in Example1 code
+
+````
+// EXT_Mesh_Features
+model.UseExtension<ExtMeshFeatures>();
+model.UseExtension<EXT_mesh_featuresextensionforEXT_mesh_gpu_instancing>();
+model.UseExtension<EXT_mesh_featuresglTFMeshPrimitiveextension>();
+model.UseExtension<EXT_mesh_featuresglTFPrimitiveextension>();
+```
+
+Current issue: Runtime exception on UseExtension second extension
