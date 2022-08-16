@@ -1,6 +1,4 @@
-﻿using SharpGLTF.Collections;
-
-namespace SharpGLTF.Schema2
+﻿namespace SharpGLTF.Schema2
 {
     // For ModelRoot
     public sealed partial class ModelExtMeshFeatures

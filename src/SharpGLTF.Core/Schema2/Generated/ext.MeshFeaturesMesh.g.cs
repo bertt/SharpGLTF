@@ -34,7 +34,7 @@ namespace SharpGLTF.Schema2
 	{
 	
 		private static readonly Int32[] _channelsDefault = new Int32[1] {0 };
-		private Int32[] _channels = _channelsDefault;
+		private List<Int32> _channels = _channelsDefault;
 		
 	
 		protected override void SerializeProperties(Utf8JsonWriter writer)

@@ -35,10 +35,10 @@ namespace SharpGLTF
             ctx.IgnoredByCodeEmitter("glTF Child of Root Property");
             ctx.IgnoredByCodeEmitter("Texture Info");
 
-            // here something goes wrong with channels...
             var cls = ctx.FindClass("Feature ID Texture in EXT_mesh_features")
                .GetField("channels").SetDefaultValue("new Int32[1] {0 }");
-            // manually edit the generated file because List<Int32> -> Int32[]
+            // here something goes wrong with channels...
+            // workaround: manually edit the generated file 'ext.MeshFeaturesMesh.g.cs' because List<Int32> -> Int32[]
             return ctx;
         }
 
