@@ -6,11 +6,22 @@ using System.Text;
 namespace SharpGLTF.Scenes
 {
     /// <summary>
-    /// Represents a light object.
+    /// Represents the base class light object.
     /// </summary>
+    /// <remarks>
+    /// Derived types are:<br/>
+    /// - <see cref="Directional"/><br/>
+    /// - <see cref="Point"/><br/>
+    /// - <see cref="Spot"/><br/>
+    /// </remarks>
     public abstract class LightBuilder : BaseBuilder
     {
-        #region lifecycle
+        #region lifecycle        
+        protected LightBuilder()
+        {
+            this.Color = Vector3.One;
+            this.Intensity = 1f;
+        }
 
         protected LightBuilder(Schema2.PunctualLight light)
         {
@@ -57,12 +68,20 @@ namespace SharpGLTF.Scenes
         #region Nested types
 
         /// <inheritdoc/>
-        [System.Diagnostics.DebuggerDisplay("Directional")]
+        [System.Diagnostics.DebuggerDisplay("LightBuilder.Directional")]
         public sealed class Directional : LightBuilder
         {
             #region lifecycle
+
+            public Directional()
+                : base()
+            { }
+
             internal Directional(Schema2.PunctualLight light)
-                : base(light) { }
+                : base(light)
+            {
+                System.Diagnostics.Debug.Assert(light.LightType == Schema2.PunctualLightType.Directional);
+            }
 
             public override LightBuilder Clone()
             {
@@ -76,14 +95,21 @@ namespace SharpGLTF.Scenes
         }
 
         /// <inheritdoc/>
-        [System.Diagnostics.DebuggerDisplay("Point")]
+        [System.Diagnostics.DebuggerDisplay("LightBuilder.Point")]
         public sealed class Point : LightBuilder
         {
             #region lifecycle
 
+            public Point()
+                : base()
+            {
+                this.Range = float.PositiveInfinity;
+            }
+
             internal Point(Schema2.PunctualLight light)
                 : base(light)
             {
+                System.Diagnostics.Debug.Assert(light.LightType == Schema2.PunctualLightType.Point);
                 this.Range = light.Range;
             }
 
@@ -114,14 +140,23 @@ namespace SharpGLTF.Scenes
         }
 
         /// <inheritdoc/>
-        [System.Diagnostics.DebuggerDisplay("Spot")]
+        [System.Diagnostics.DebuggerDisplay("LightBuilder.Spot")]
         public sealed class Spot : LightBuilder
         {
             #region lifecycle
 
+            public Spot()
+                : base()
+            {
+                this.Range = float.PositiveInfinity;
+                this.InnerConeAngle = 0;
+                this.OuterConeAngle = 0.7853981633974483f;
+            }
+
             internal Spot(Schema2.PunctualLight light)
                 : base(light)
             {
+                System.Diagnostics.Debug.Assert(light.LightType == Schema2.PunctualLightType.Spot);
                 this.Range = light.Range;
                 this.InnerConeAngle = light.InnerConeAngle;
                 this.OuterConeAngle = light.OuterConeAngle;

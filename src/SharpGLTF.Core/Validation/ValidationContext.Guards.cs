@@ -154,7 +154,7 @@ namespace SharpGLTF.Validation
         #region link
 
         [System.Diagnostics.DebuggerStepThrough]
-        internal void _LinkThrow(PARAMNAME pname, string msg) { throw new LinkException(_Current, $"{pname.ToString()}: {msg}"); }
+        internal void _LinkThrow(PARAMNAME pname, string msg) { throw new LinkException(_Current, $"{pname}: {msg}"); }
 
         public OUTTYPE EnumsAreEqual<TValue>(PARAMNAME parameterName, TValue value, TValue expected)
                 where TValue : Enum
@@ -192,14 +192,18 @@ namespace SharpGLTF.Validation
 
         public OUTTYPE IsAnyOf<T>(PARAMNAME parameterName, T value, params T[] values)
         {
-            if (!values.Contains(value)) _LinkThrow(parameterName, $"value {value} is invalid.");
+            string separator = " ";
+
+            if (!values.Contains(value)) _LinkThrow(parameterName, $"value {value} is not one of [{string.Join(separator, values)}].");
 
             return this;
         }
 
         public OUTTYPE IsAnyOf(PARAMNAME parameterName, Memory.AttributeFormat value, params Memory.AttributeFormat[] values)
         {
-            if (!values.Contains(value)) _LinkThrow(parameterName, $"value {value} is invalid.");
+            string separator = " ";
+
+            if (!values.Contains(value)) _LinkThrow(parameterName, $"value {value._GetDebuggerDisplay()} is not one of [{string.Join(separator, values.Select(item=>item._GetDebuggerDisplay()))}].");
 
             return this;
         }
@@ -278,18 +282,18 @@ namespace SharpGLTF.Validation
 
         public OUTTYPE IsMatrix(PARAMNAME pname, in System.Numerics.Matrix4x4 matrix, bool mustInvert = true, bool mustDecompose = true)
         {
-            var flags = _Extensions.MatrixCheck.NonZero;
-            if (mustInvert) flags |= _Extensions.MatrixCheck.Invertible;
-            if (mustDecompose) flags |= _Extensions.MatrixCheck.Decomposable;
+            var flags = Transforms.Matrix4x4Factory.MatrixCheck.NonZero;
+            if (mustInvert) flags |= Transforms.Matrix4x4Factory.MatrixCheck.Invertible;
+            if (mustDecompose) flags |= Transforms.Matrix4x4Factory.MatrixCheck.Decomposable;
             if (!matrix.IsValid(flags)) _DataThrow(pname, "Invalid Matrix");
             return this;
         }
 
         public OUTTYPE IsMatrix4x3(PARAMNAME pname, in System.Numerics.Matrix4x4 matrix, bool mustInvert = true, bool mustDecompose = true)
         {
-            var flags = _Extensions.MatrixCheck.IdentityColumn4;
-            if (mustInvert) flags |= _Extensions.MatrixCheck.Invertible;
-            if (mustDecompose) flags |= _Extensions.MatrixCheck.Decomposable;
+            var flags = Transforms.Matrix4x4Factory.MatrixCheck.IdentityColumn4;
+            if (mustInvert) flags |= Transforms.Matrix4x4Factory.MatrixCheck.Invertible;
+            if (mustDecompose) flags |= Transforms.Matrix4x4Factory.MatrixCheck.Decomposable;
 
             if (!matrix.IsValid(flags)) _DataThrow(pname, "Invalid Matrix");
             return this;

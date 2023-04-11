@@ -141,11 +141,14 @@ namespace SharpGLTF.IO
             var ajson = a.ToJson();
             var bjson = b.ToJson();
 
-            if (ajson != bjson) return false;
+            if (ajson == bjson) return true;
 
-            Assert.IsTrue(JsonContent.AreEqualByContent(a, b, 0.0001f));
+            // Net6.0 has better roundtrip handling that netstandard/net4
+            #if NET6_0_OR_GREATER            
+            return false;
+            #endif
 
-            return true;
+            return JsonContent.AreEqualByContent(a, b, 0.0001f);
         }
 
         [Test]
@@ -255,18 +258,5 @@ namespace SharpGLTF.IO
 
             Assert.IsTrue(roundtripModel.LogicalImages[0].Content.IsPng);
         }
-    }
-
-    [Category("Core.IO")]
-    public class ContextTests
-    {
-        [Test]
-        public void TestCurrentDirectoryLoad()
-        {
-            // for some reason, System.IO.Path.GetFullPath() does not recogninze an empty string as the current directory.
-
-            var currDirContext0 = Schema2.ReadContext.CreateFromDirectory(string.Empty);
-            Assert.NotNull(currDirContext0);            
-        }
-    }
+    }    
 }

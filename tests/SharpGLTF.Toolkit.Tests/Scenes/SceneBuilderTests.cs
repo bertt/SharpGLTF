@@ -10,6 +10,9 @@ using SharpGLTF.Geometry;
 using SharpGLTF.Geometry.VertexTypes;
 using SharpGLTF.Geometry.Parametric;
 using SharpGLTF.Materials;
+using System.Diagnostics;
+using System.Collections.ObjectModel;
+using SharpGLTF.Validation;
 
 namespace SharpGLTF.Scenes
 {
@@ -22,6 +25,39 @@ namespace SharpGLTF.Scenes
     [Category("Toolkit.Scenes")]
     public partial class SceneBuilderTests
     {
+        [Test(Description = "Creates a simple triangle with Cesium outlining")]
+        public void CreateCesiumOutlineTriangleScene()
+        {
+            TestContext.CurrentContext.AttachGltfValidatorLinks();
+
+            var material = MaterialBuilder.CreateDefault();
+
+            var mesh = new MeshBuilder<VertexPosition>("mesh");
+
+            var prim = mesh.UsePrimitive(material);
+            prim.AddTriangle(new VertexPosition(-10, 0, 0), new VertexPosition(10, 0, 0), new VertexPosition(0, 10, 0));
+
+            var scene = new SceneBuilder();
+
+            scene.AddRigidMesh(mesh, Matrix4x4.Identity);
+
+            var model = scene.ToGltf2();
+
+            var outlines = new uint[] { 0, 1, 1, 2, 2, 0};            
+            model.LogicalMeshes[0].Primitives[0].SetCesiumOutline(outlines);
+
+            var cesiumOutlineExtension = (CesiumPrimitiveOutline)model.LogicalMeshes[0].Primitives[0].Extensions.FirstOrDefault();
+            Assert.NotNull(cesiumOutlineExtension.Indices);
+            CollectionAssert.AreEqual(outlines, cesiumOutlineExtension.Indices.AsIndicesArray());
+
+            var ctx = new ValidationResult(model, ValidationMode.Strict, true);
+            model.ValidateContent(ctx.GetContext());
+
+            scene.AttachToCurrentTest("cesium_outline_triangle.glb");
+            scene.AttachToCurrentTest("cesium_outline_triangle.gltf");
+            scene.AttachToCurrentTest("cesium_outline_triangle.plotly");
+        }
+
         [Test(Description ="Creates a simple cube.")]
         public void CreateCubeScene()
         {            
@@ -38,6 +74,45 @@ namespace SharpGLTF.Scenes
             scene.AttachToCurrentTest("cube.glb");
             scene.AttachToCurrentTest("cube.gltf");
             scene.AttachToCurrentTest("cube.plotly");
+        }
+
+        [Test(Description = "Creates a simple cube with a light.")]
+        public void CreateCubeWithLightScene()
+        {
+            TestContext.CurrentContext.AttachGltfValidatorLinks();
+
+            var material = MaterialBuilder.CreateDefault();
+
+            var mesh = new Cube<MaterialBuilder>(material).ToMesh(Matrix4x4.Identity);
+
+            var scene = new SceneBuilder();
+
+            scene.AddRigidMesh(mesh, Matrix4x4.Identity);
+
+            var light = new LightBuilder.Point
+            {
+                Color = new Vector3(1, 0, 0),
+                Intensity = 3,
+                Range = 10,
+            };
+            
+            scene.AddLight(light, new NodeBuilder("light").WithLocalTranslation(new Vector3(0, 100, 0)) );
+            scene.AddLight(light, Matrix4x4.CreateTranslation(0, -100, 0));
+
+            var lightInstances = scene.Instances
+                .Select(item => item.Content.Content)
+                .OfType<LightContent>()
+                .ToList();
+
+            Assert.AreEqual(2, lightInstances.Count);
+
+            var gltf = scene.ToGltf2();
+
+            Assert.AreEqual(2, gltf.LogicalPunctualLights.Count);
+
+            gltf.AttachToCurrentTest("cube.glb");
+            gltf.AttachToCurrentTest("cube.gltf");
+            gltf.AttachToCurrentTest("cube.plotly");
         }
 
         [Test(Description = "Creates a simple cube.")]
@@ -654,6 +729,27 @@ namespace SharpGLTF.Scenes
             var fileName = AttachmentInfo.From("empty.glb").File.FullName;
 
             Assert.Throws<SharpGLTF.Validation.SchemaException>(() => schema.SaveGLB(fileName));
+        }
+
+        [Test]
+        public void TestEmptyNodeRoundtrip()
+        {
+            // create a scenebuilder with an empty node
+            var sb = new SceneBuilder();
+
+            sb.AddNode(new NodeBuilder()); // unnamed nodes will be optimized out
+            sb.AddNode(new NodeBuilder("Named"));            
+
+            var gltf = sb.ToGltf2();
+
+            Assert.AreEqual(2, gltf.LogicalNodes.Count);
+
+            // roundtrip
+            sb = SceneBuilder.CreateFrom(gltf.DefaultScene);
+
+            var instance = sb.Instances.FirstOrDefault(item => item.Name == "Named");
+
+            Assert.NotNull(instance);            
         }
 
         [Test]

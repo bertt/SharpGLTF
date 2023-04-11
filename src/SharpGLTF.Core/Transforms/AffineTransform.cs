@@ -93,6 +93,11 @@ namespace SharpGLTF.Transforms
             return new AffineTransform(matrix);
         }
 
+        public static implicit operator AffineTransform(Quaternion rotation)
+        {
+            return new AffineTransform(rotation);
+        }
+
         public static AffineTransform CreateDecomposed(Matrix4x4 matrix)
         {
             if (!Matrix4x4.Decompose(matrix, out var s, out var r, out var t)) throw new ArgumentException("Can't decompose", nameof(matrix));
@@ -151,6 +156,14 @@ namespace SharpGLTF.Transforms
             : this(scale ?? Vector3.One, rotation ?? Quaternion.Identity, translation ?? Vector3.Zero)
         { }
 
+        public AffineTransform(Quaternion rotation)
+            : this(Vector3.One, rotation, Vector3.Zero)
+        { }
+
+        public AffineTransform(Quaternion rotation, Vector3 translation)
+            : this(Vector3.One, rotation, translation)
+        { }
+
         public AffineTransform(Vector3 scale, Quaternion rotation, Vector3 translation)
         {
             rotation = rotation.Sanitized();
@@ -178,11 +191,7 @@ namespace SharpGLTF.Transforms
 
         public AffineTransform(Matrix4x4 matrix)
         {
-            Guard.IsTrue(matrix._IsFinite(), nameof(matrix));
-            Guard.MustBeEqualTo(matrix.M14, 0, nameof(matrix.M14));
-            Guard.MustBeEqualTo(matrix.M24, 0, nameof(matrix.M24));
-            Guard.MustBeEqualTo(matrix.M34, 0, nameof(matrix.M34));
-            Guard.MustBeEqualTo(matrix.M44, 1, nameof(matrix.M44));
+            Matrix4x4Factory.GuardMatrix(nameof(matrix), matrix, Matrix4x4Factory.MatrixCheck.WorldTransform);
 
             _Representation = DATA_MAT;
 
@@ -199,7 +208,7 @@ namespace SharpGLTF.Transforms
             _M33 = matrix.M33;
 
             _Translation = matrix.Translation;
-        }
+        }              
 
         #endregion
 
@@ -303,28 +312,53 @@ namespace SharpGLTF.Transforms
         /// <inheritdoc/>
         public bool Equals(AffineTransform other)
         {
-            if (this.IsSRT && other.IsSRT)
+            if (this._Representation != other._Representation) return false;
+
+            if (this._Translation != other._Translation) return false;
+            if (this._M11 != other._M11) return false;
+            if (this._M12 != other._M12) return false;
+            if (this._M13 != other._M13) return false;
+
+            if (this._M21 != other._M21) return false;
+            if (this._M22 != other._M22) return false;
+            if (this._M23 != other._M23) return false;
+            if (this._M31 != other._M31) return false;
+
+            if (this.IsMatrix && other.IsMatrix)
             {
-                if (this._Translation != other._Translation) return false;
-                if (this._M11 != other._M11) return false;
-                if (this._M12 != other._M12) return false;
-                if (this._M13 != other._M13) return false;
-
-                if (this._M21 != other._M21) return false;
-                if (this._M22 != other._M22) return false;
-                if (this._M23 != other._M23) return false;
-                if (this._M31 != other._M31) return false;
-
-                System.Diagnostics.Debug.Assert(this._M32 == other._M32);
-                System.Diagnostics.Debug.Assert(this._M33 == other._M33);
+                if (this._M32 != other._M32) return false;
+                if (this._M33 != other._M33) return false;
             }
 
-            return this.Matrix.Equals(other.Matrix);
+            return true;
         }
 
         public static bool operator ==(in AffineTransform a, in AffineTransform b) { return a.Equals(b); }
 
         public static bool operator !=(in AffineTransform a, in AffineTransform b) { return !a.Equals(b); }
+
+        /// <summary>
+        /// Checks whether two transform represent the same geometric spatial transformation.
+        /// </summary>
+        /// <param name="a">the first transform to check.</param>
+        /// <param name="b">the second transform to check.</param>
+        /// <param name="tolerance">the tolerance to handle floating point error.</param>
+        /// <returns>true if both transforms can be considered geometryically equivalent.</returns>
+        public static bool AreGeometricallyEquivalent(in AffineTransform a, in AffineTransform b, float tolerance = 0.00001f)
+        {
+            var ax = Transform(Vector3.UnitX, a);
+            var ay = Transform(Vector3.UnitY, a);
+            var az = Transform(Vector3.UnitZ, a);
+
+            var bx = Transform(Vector3.UnitX, b);
+            var by = Transform(Vector3.UnitY, b);
+            var bz = Transform(Vector3.UnitZ, b);
+
+            if (Vector3.Distance(ax, bx) > tolerance) return false;
+            if (Vector3.Distance(ay, by) > tolerance) return false;
+            if (Vector3.Distance(az, bz) > tolerance) return false;
+            return true;
+        }
 
         #endregion
 
@@ -470,51 +504,12 @@ namespace SharpGLTF.Transforms
         #endregion
 
         #region API
-
-        private void _VerifyDefined()
-        {
-            if (_Representation == DATA_UNDEFINED) throw new InvalidOperationException("Undefined");
-        }
-
-        private Matrix4x4 _GetMatrix()
-        {
-            if (IsMatrix)
-            {
-                return new Matrix4x4
-                (
-                    _M11, _M12, _M13, 0,
-                    _M21, _M22, _M23, 0,
-                    _M31, _M32, _M33, 0,
-                    _Translation.X,
-                    _Translation.Y,
-                    _Translation.Z, 1
-                );
-            }
-            else if (IsSRT)
-            {
-                var m = Matrix4x4.CreateScale(this.Scale) * Matrix4x4.CreateFromQuaternion(this.Rotation);
-                m.Translation = this.Translation;
-                return m;
-            }
-            else
-            {
-                _VerifyDefined();
-                return default;
-            }
-        }
-
-        private Vector3 _GetScale()
-        {
-            if (IsSRT) return new Vector3(_M11, _M12, _M13);
-            throw new InvalidOperationException(_RequiresSRTError);
-        }
-
-        private Quaternion _GetRotation()
-        {
-            if (IsSRT) return new Quaternion(_M21, _M22, _M23, _M31);
-            throw new InvalidOperationException(_RequiresSRTError);
-        }
-
+        
+        /// <summary>
+        /// If this object represents a <see cref="Matrix4x4"/>, it returns a decomposed representation.
+        /// </summary>
+        /// <returns></returns>
+        /// <exception cref="InvalidOperationException">The matrix cannot be decomposed.</exception>
         public AffineTransform GetDecomposed()
         {
             return TryDecompose(out AffineTransform xform)
@@ -621,46 +616,201 @@ namespace SharpGLTF.Transforms
         /// </returns>
         public static AffineTransform Multiply(in AffineTransform a, in AffineTransform b)
         {
-            // if any of the two operators is a matrix, do a matrix multiplication.
-            if (a.IsMatrix || b.IsMatrix)
-            {
-                return new AffineTransform(a.Matrix * b.Matrix);
-            }
-
             Guard.IsFalse(a._Representation == DATA_UNDEFINED, nameof(a));
             Guard.IsFalse(b._Representation == DATA_UNDEFINED, nameof(b));
-
-            // if the B operator has an uneven scale AND a rotation, do a matrix multiplication
-            // which produces a squeezed matrix and cannot be decomposed.
-
-            var sb = b.Scale;
-
-            if (!(sb.X == sb.Y && sb.X == sb.Z) && b.Rotation != Quaternion.Identity)
+            
+            if (a.IsMatrix || b.IsMatrix)
             {
+                // if any of the two operators is a matrix,
+                // do a matrix multiplication.
+
                 return new AffineTransform(a.Matrix * b.Matrix);
             }
+            
+            var sb = b.Scale;
 
-            // we're safe to make a decomposed multiplication
+            if (sb.X != sb.Y || sb.X != sb.Z)
+            {
+                // If the B operator has an uneven scale,                
+                // do a matrix multiplication which produces
+                // a sheared matrix that cannot be decomposed.
 
-            var s = _Vector3Transform(b.Scale * _Vector3Transform(a.Scale, a.Rotation), Quaternion.Inverse(a.Rotation));
+                return new AffineTransform(a.Matrix * b.Matrix);
+            }            
 
-            var r = Quaternion.Multiply(b.Rotation, a.Rotation);
+            var s = sb * a.Scale;
+            
+            var rb = b.Rotation;
 
-            var t
-                = b.Translation
-                + _Vector3Transform(a.Translation * b.Scale, b.Rotation);
+            var r = Quaternion.Multiply(rb, a.Rotation);            
+            
+            var t = b.Translation + _Vector3Transform(a.Translation * sb, rb);
 
             return new AffineTransform(s, r, t);
         }
 
         /// <summary>
-        /// This method is equivalent to System.Numerics.Vector3.Transform(Vector3 v, Quaternion q)
+        /// Inverts the specified transform. The return value indicates whether the operation succeeded.
         /// </summary>
+        /// <remarks>
+        /// SRT format with uneven scale can produce results that differ from a matrix
+        /// </remarks>
+        /// <param name="xform">The transform to invert.</param>
+        /// <param name="inverse">The inverted result.</param>
+        /// <returns>True if the operation succeeds.</returns>
+        public static bool TryInvert(in AffineTransform xform, out AffineTransform inverse)
+        {
+            if (xform.IsMatrix)
+            {
+                if (Matrix4x4.Invert(xform.Matrix, out var result))
+                {
+                    result.M44 = 1; // fix Matrix4x4.Invert precission loss.
+                    inverse = result;
+                    return true;
+                }
+                else
+                {
+                    inverse = default;
+                    return false;
+                }
+            }
+
+            if (xform.IsSRT)
+            {
+                if (xform.Rotation.IsIdentity) // SRTs with no rotation can be safely inverted
+                {
+                    var si = Vector3.One / xform.Scale;
+                    var ti = -si * xform.Translation;
+                    inverse = new AffineTransform(si, Quaternion.Identity, ti);
+                }
+                else
+                {
+                    // SRTs with uneven scaling cannot be inverted, so we need to handle them as matrices
+                    if (xform.Scale.X != xform.Scale.Y || xform.Scale.Y != xform.Scale.Z)
+                    {
+                        return TryInvert(xform.Matrix, out inverse);
+                    }
+
+                    var si = 1f / xform.Scale.X;
+                    var ri = Quaternion.Normalize(Quaternion.Conjugate(xform.Rotation));
+                    var ti = -si * _Vector3Transform(xform.Translation, ri);
+
+                    inverse = new AffineTransform(new Vector3(si), ri, ti);
+                }
+
+                return true;
+            }
+
+            inverse = default;
+            return false;
+        }
+
+        /// <summary>
+        /// Transforms a vector by a specified transform.
+        /// </summary>
+        /// <param name="vector">The vector to transform.</param>
+        /// <param name="xform">The transform to apply.</param>
+        /// <returns>The transformed vector.</returns>        
+        private static Vector3 Transform(Vector3 vector, in AffineTransform xform)
+        {
+            if (xform.IsMatrix)
+            {
+                return Vector3.Transform(vector, xform.Matrix);
+            }
+
+            if (xform.IsSRT)
+            {
+                vector *= xform.Scale;
+                vector = _Vector3Transform(vector, xform.Rotation);
+                vector += xform.Translation;
+                return vector;
+            }
+
+            throw new ArgumentException("Undefined transform", nameof(xform));
+        }
+
+        /// <summary>
+        /// Transforms a vector normal by a specified transform.
+        /// </summary>
+        /// <param name="vector">The vector to transform.</param>
+        /// <param name="xform">The transform to apply.</param>
+        /// <returns>The transformed vector.</returns>        
+        public static Vector3 TransformNormal(Vector3 vector, in AffineTransform xform)
+        {
+            if (xform.IsMatrix)
+            {
+                return Vector3.TransformNormal(vector, xform.Matrix);
+            }
+
+            if (xform.IsSRT)
+            {
+                vector *= xform.Scale;
+                vector = _Vector3Transform(vector, xform.Rotation);
+                return vector;
+            }
+
+            throw new ArgumentException("Undefined transform", nameof(xform));
+        }
+
+        #endregion
+
+        #region internals
+
+        private void _VerifyDefined()
+        {
+            if (_Representation == DATA_UNDEFINED) throw new InvalidOperationException("Undefined");
+        }
+
+        private Matrix4x4 _GetMatrix()
+        {
+            if (IsMatrix)
+            {
+                return new Matrix4x4
+                (
+                    _M11, _M12, _M13, 0,
+                    _M21, _M22, _M23, 0,
+                    _M31, _M32, _M33, 0,
+                    _Translation.X,
+                    _Translation.Y,
+                    _Translation.Z, 1
+                );
+            }
+            else if (IsSRT)
+            {
+                var m = Matrix4x4.CreateScale(this.Scale) * Matrix4x4.CreateFromQuaternion(this.Rotation);
+                m.Translation = this.Translation;
+                return m;
+            }
+            else
+            {
+                _VerifyDefined();
+                return default;
+            }
+        }
+
+        private Vector3 _GetScale()
+        {
+            if (IsSRT) return new Vector3(_M11, _M12, _M13);
+            throw new InvalidOperationException(_RequiresSRTError);
+        }
+
+        private Quaternion _GetRotation()
+        {
+            if (IsSRT) return new Quaternion(_M21, _M22, _M23, _M31);
+            throw new InvalidOperationException(_RequiresSRTError);
+        }
+
+        /// <summary>
+        /// This method is equivalent to System.Numerics.Vector3.Transform(Vector3 v, Quaternion q)
+        /// </summary>        
         /// <param name="v">The vector to transform</param>
         /// <param name="q">The transform rotation</param>
-        /// <returns>The rotated vector</returns>
+        /// <returns>The transformed vector</returns>
+        [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         private static Vector3 _Vector3Transform(Vector3 v, Quaternion q)
         {
+            // https://github.com/dotnet/runtime/blob/985eedd68df0b4fb3f541fe266c95fa0a1bc4a0a/src/libraries/System.Private.CoreLib/src/System/Numerics/Vector3.cs#L543
+
             // Extract the vector part of the quaternion
             var u = new Vector3(q.X, q.Y, q.Z);
 

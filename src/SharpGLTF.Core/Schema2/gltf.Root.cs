@@ -63,20 +63,23 @@ namespace SharpGLTF.Schema2
 
             // write the model to the temporary storage
 
-            wcontext.WriteTextSchema2("deepclone", this);
+            wcontext.WriteTextSchema2("$$$deepclone$$$", this);
 
             // restore the model from the temporary storage
 
             var rcontext = ReadContext.CreateFromDictionary(dict, wcontext._UpdateSupportedExtensions);
             rcontext.Validation = Validation.ValidationMode.Skip;
-            var cloned = rcontext.ReadSchema2("deepclone.gltf");
+            var cloned = rcontext.ReadSchema2("$$$deepclone$$$.gltf");
 
-            // Restore MemoryImage source URIs (they're not cloned as part of the serialization)
+            // Restore MemoryImage's source URIs hints
+            // and Image's AlternateWriteFileName
+            // (they're not cloned as part of the serialization)
             foreach (var srcImg in this.LogicalImages)
             {
                 var dstImg = cloned.LogicalImages[srcImg.LogicalIndex];
                 var img = dstImg.Content;
-                dstImg.Content = new Memory.MemoryImage(img._GetBuffer(), srcImg.Content.SourcePath);
+                dstImg.Content = new Memory.MemoryImage(img, srcImg.Content.SourcePath);
+                dstImg.AlternateWriteFileName = srcImg.AlternateWriteFileName;
             }
 
             return cloned;

@@ -55,6 +55,8 @@ namespace SharpGLTF.Schema2
             RegisterExtension<Node, NodeExtMeshFeatures>("EXT_MeshFeatures");
             RegisterExtension<Mesh, MeshExtMeshFeatures>("EXT_MeshFeatures");
             RegisterExtension<MeshPrimitive, PrimitiveExtMeshFeatures>("EXT_MeshFeatures");
+
+            RegisterExtension<MeshPrimitive, CesiumPrimitiveOutline>("CESIUM_primitive_outline");
         }
 
         #endregion
