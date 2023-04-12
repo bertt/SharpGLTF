@@ -19,7 +19,7 @@ namespace Example1
             var material1 = new MaterialBuilder()
                 .WithDoubleSide(true)
                 .WithMetallicRoughnessShader()
-                .WithChannelParam(KnownChannel.BaseColor, KnownProperty.RGBA, new Vector4(1,0,0,1) );
+                .WithChannelParam(KnownChannel.BaseColor, KnownProperty.RGBA, new Vector4(1, 0, 0, 1));
 
             var material2 = new MaterialBuilder()
                 .WithDoubleSide(true)
@@ -46,27 +46,6 @@ namespace Example1
             // save the model in different formats
 
             var model = scene.ToGltf2();
-
-            // EXT_Mesh_Features
-            model.UseExtension<ModelExtMeshFeatures>();
-            //model.UseExtension<EXT_mesh_featuresextensionforEXT_mesh_gpu_instancing>();
-            //model.UseExtension<EXT_mesh_featuresglTFMeshPrimitiveextension>();
-            // Following line gives an exception...
-            model.UseExtension<PrimitiveExtMeshFeatures>();
-
-            /**
-             *   "meshes" : [ {
-    "primitives" : [ {
-      "extensions" : {
-        "EXT_mesh_features" : {
-          "featureIds" : [ {
-            "featureCount" : 4,
-            "attribute" : 0
-          } ]
-        }
-      },
-            */
-
             model.SaveAsWavefront("mesh.obj");
             model.SaveGLB("mesh.glb");
             model.SaveGLTF("mesh.gltf");

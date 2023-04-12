@@ -50,12 +50,7 @@ namespace SharpGLTF.Schema2
             RegisterExtension<Node, AgiNodeArticulations>("AGI_articulations");
             RegisterExtension<Node, AgiNodeStkMetadata>("AGI_stk_metadata");
 
-            // EXT_Mesh_Features
-            RegisterExtension<ModelRoot, ModelExtMeshFeatures>("EXT_MeshFeatures");
-            RegisterExtension<Node, NodeExtMeshFeatures>("EXT_MeshFeatures");
-            RegisterExtension<Mesh, MeshExtMeshFeatures>("EXT_MeshFeatures");
-            RegisterExtension<MeshPrimitive, PrimitiveExtMeshFeatures>("EXT_MeshFeatures");
-
+            RegisterExtension<MeshPrimitive, MeshExtMeshFeatures>("EXT_mesh_features");
             RegisterExtension<MeshPrimitive, CesiumPrimitiveOutline>("CESIUM_primitive_outline");
         }
 

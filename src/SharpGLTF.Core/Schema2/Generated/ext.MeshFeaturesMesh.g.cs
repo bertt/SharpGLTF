@@ -34,9 +34,8 @@ namespace SharpGLTF.Schema2
 	{
 	
 		private static readonly Int32[] _channelsDefault = new Int32[1] {0 };
-		private List<Int32> _channels = _channelsDefault;
+		private Int32[] _channels = _channelsDefault;
 		
-	
 		protected override void SerializeProperties(Utf8JsonWriter writer)
 		{
 			base.SerializeProperties(writer);
@@ -57,7 +56,7 @@ namespace SharpGLTF.Schema2
 	/// <summary>
 	/// Feature IDs stored in an attribute or texture.
 	/// </summary>
-	partial class FeatureIDinEXT_mesh_features : ExtraProperties
+	partial class FeatureID : ExtraProperties
 	{
 	
 		private Int32? _attribute;
@@ -110,7 +109,7 @@ namespace SharpGLTF.Schema2
 	{
 	
 		private const int _featureIdsMinItems = 1;
-		private List<FeatureIDinEXT_mesh_features> _featureIds;
+		private List<FeatureID> _featureIds;
 		
 	
 		protected override void SerializeProperties(Utf8JsonWriter writer)
@@ -123,7 +122,7 @@ namespace SharpGLTF.Schema2
 		{
 			switch (jsonPropertyName)
 			{
-				case "featureIds": DeserializePropertyList<FeatureIDinEXT_mesh_features>(ref reader, _featureIds); break;
+				case "featureIds": DeserializePropertyList<FeatureID>(ref reader, _featureIds); break;
 				default: base.DeserializeProperty(jsonPropertyName,ref reader); break;
 			}
 		}

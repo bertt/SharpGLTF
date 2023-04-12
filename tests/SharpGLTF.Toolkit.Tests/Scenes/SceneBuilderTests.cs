@@ -22,9 +22,49 @@ namespace SharpGLTF.Scenes
     using SKINNEDVERTEX8 = VertexBuilder<VertexPosition, VertexEmpty, VertexJoints8>;
 
 
+
     [Category("Toolkit.Scenes")]
     public partial class SceneBuilderTests
     {
+        [Test(Description = "Creates a simple triangle with Cesium FeatureIds")]
+        public void CreateCesiumFeatureIdsTriangleScene()
+        {
+            TestContext.CurrentContext.AttachGltfValidatorLinks();
+
+            var material = MaterialBuilder.CreateDefault();
+
+            var mesh = new MeshBuilder<VertexPosition>("mesh");
+
+            var prim = mesh.UsePrimitive(material);
+            prim.AddTriangle(new VertexPosition(-10, 0, 0), new VertexPosition(10, 0, 0), new VertexPosition(0, 10, 0));
+
+            var scene = new SceneBuilder();
+
+            scene.AddRigidMesh(mesh, Matrix4x4.Identity);
+
+            var model = scene.ToGltf2();
+
+            var outlines = new uint[] { 0, 1, 1, 2, 2, 0 };
+
+            var featureId = new FeatureID(2, 0);
+            var featureIds = new List<FeatureID>() { featureId };
+            model.LogicalMeshes[0].Primitives[0].SetFeatureIds(featureIds);
+
+            var cesiumFeatureIdExtension = (MeshExtMeshFeatures) model.LogicalMeshes[0].Primitives[0].Extensions.FirstOrDefault();
+            Assert.NotNull(cesiumFeatureIdExtension.FeatureIds);
+            CollectionAssert.AreEqual(featureIds, cesiumFeatureIdExtension.FeatureIds);
+
+            var ctx = new ValidationResult(model, ValidationMode.Strict, true);
+            model.ValidateContent(ctx.GetContext());
+
+            scene.AttachToCurrentTest("cesium_outline_triangle.glb");
+            scene.AttachToCurrentTest("cesium_outline_triangle.gltf");
+            scene.AttachToCurrentTest("cesium_outline_triangle.plotly");
+        }
+
+
+
+
         [Test(Description = "Creates a simple triangle with Cesium outlining")]
         public void CreateCesiumOutlineTriangleScene()
         {
