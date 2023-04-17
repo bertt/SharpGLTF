@@ -27,4 +27,609 @@ namespace SharpGLTF.Schema2
 {
 	using Collections;
 
+	/// <summary>
+	/// The element type.
+	/// </summary>
+	public enum ElementType
+	{
+		SCALAR,
+		VEC2,
+		VEC3,
+		VEC4,
+		MAT2,
+		MAT3,
+		MAT4,
+		STRING,
+		BOOLEAN,
+		ENUM,
+	}
+
+
+	/// <summary>
+	/// The datatype of the element's components. Only applicable to `SCALAR`, `VECN`, and `MATN` types.
+	/// </summary>
+	public enum DataType
+	{
+		INT8,
+		UINT8,
+		INT16,
+		UINT16,
+		INT32,
+		UINT32,
+		INT64,
+		UINT64,
+		FLOAT32,
+		FLOAT64,
+	}
+
+
+	/// <summary>
+	/// The type of the integer enum value.
+	/// </summary>
+	public enum IntegerType
+	{
+		INT8,
+		UINT8,
+		INT16,
+		UINT16,
+		INT32,
+		UINT32,
+		INT64,
+		UINT64,
+	}
+
+
+	/// <summary>
+	/// The type of values in `stringOffsets`.
+	/// </summary>
+	public enum StringOffsets
+	{
+		UINT8,
+		UINT16,
+		UINT32,
+		UINT64,
+	}
+
+
+	/// <summary>
+	/// A class property.
+	/// </summary>
+	partial class ClassPropertyinEXT_structural_metadata : ExtraProperties
+	{
+	
+		private static readonly Boolean _arrayDefault = false;
+		private Boolean? _array = _arrayDefault;
+		
+		private DataType? _componentType;
+		
+		private const Int32 _countMinimum = 2;
+		private Int32? _count;
+		
+		private Object _default;
+		
+		private String _description;
+		
+		private String _enumType;
+		
+		private Object _max;
+		
+		private Object _min;
+		
+		private String _name;
+		
+		private Object _noData;
+		
+		private static readonly Boolean _normalizedDefault = false;
+		private Boolean? _normalized = _normalizedDefault;
+		
+		private Object _offset;
+		
+		private static readonly Boolean _requiredDefault = false;
+		private Boolean? _required = _requiredDefault;
+		
+		private Object _scale;
+		
+		private String _semantic;
+		
+		private ElementType _type;
+		
+	
+		protected override void SerializeProperties(Utf8JsonWriter writer)
+		{
+			base.SerializeProperties(writer);
+			SerializeProperty(writer, "array", _array, _arrayDefault);
+			SerializePropertyEnumSymbol<DataType>(writer, "componentType", _componentType);
+			SerializeProperty(writer, "count", _count);
+			SerializeProperty(writer, "default", _default);
+			SerializeProperty(writer, "description", _description);
+			SerializeProperty(writer, "enumType", _enumType);
+			SerializeProperty(writer, "max", _max);
+			SerializeProperty(writer, "min", _min);
+			SerializeProperty(writer, "name", _name);
+			SerializeProperty(writer, "noData", _noData);
+			SerializeProperty(writer, "normalized", _normalized, _normalizedDefault);
+			SerializeProperty(writer, "offset", _offset);
+			SerializeProperty(writer, "required", _required, _requiredDefault);
+			SerializeProperty(writer, "scale", _scale);
+			SerializeProperty(writer, "semantic", _semantic);
+			SerializePropertyEnumSymbol<ElementType>(writer, "type", _type);
+		}
+	
+		protected override void DeserializeProperty(string jsonPropertyName, ref Utf8JsonReader reader)
+		{
+			switch (jsonPropertyName)
+			{
+				case "array": _array = DeserializePropertyValue<Boolean?>(ref reader); break;
+				case "componentType": _componentType = DeserializePropertyValue<DataType>(ref reader); break;
+				case "count": _count = DeserializePropertyValue<Int32?>(ref reader); break;
+				case "default": _default = DeserializePropertyValue<Object>(ref reader); break;
+				case "description": _description = DeserializePropertyValue<String>(ref reader); break;
+				case "enumType": _enumType = DeserializePropertyValue<String>(ref reader); break;
+				case "max": _max = DeserializePropertyValue<Object>(ref reader); break;
+				case "min": _min = DeserializePropertyValue<Object>(ref reader); break;
+				case "name": _name = DeserializePropertyValue<String>(ref reader); break;
+				case "noData": _noData = DeserializePropertyValue<Object>(ref reader); break;
+				case "normalized": _normalized = DeserializePropertyValue<Boolean?>(ref reader); break;
+				case "offset": _offset = DeserializePropertyValue<Object>(ref reader); break;
+				case "required": _required = DeserializePropertyValue<Boolean?>(ref reader); break;
+				case "scale": _scale = DeserializePropertyValue<Object>(ref reader); break;
+				case "semantic": _semantic = DeserializePropertyValue<String>(ref reader); break;
+				case "type": _type = DeserializePropertyValue<ElementType>(ref reader); break;
+				default: base.DeserializeProperty(jsonPropertyName,ref reader); break;
+			}
+		}
+	
+	}
+
+	/// <summary>
+	/// A class containing a set of properties.
+	/// </summary>
+	partial class ClassinEXT_structural_metadata : ExtraProperties
+	{
+	
+		private String _description;
+		
+		private String _name;
+		
+		private Dictionary<String,ClassPropertyinEXT_structural_metadata> _properties;
+		
+	
+		protected override void SerializeProperties(Utf8JsonWriter writer)
+		{
+			base.SerializeProperties(writer);
+			SerializeProperty(writer, "description", _description);
+			SerializeProperty(writer, "name", _name);
+			SerializeProperty(writer, "properties", _properties);
+		}
+	
+		protected override void DeserializeProperty(string jsonPropertyName, ref Utf8JsonReader reader)
+		{
+			switch (jsonPropertyName)
+			{
+				case "description": _description = DeserializePropertyValue<String>(ref reader); break;
+				case "name": _name = DeserializePropertyValue<String>(ref reader); break;
+				case "properties": DeserializePropertyDictionary<ClassPropertyinEXT_structural_metadata>(ref reader, _properties); break;
+				default: base.DeserializeProperty(jsonPropertyName,ref reader); break;
+			}
+		}
+	
+	}
+
+	/// <summary>
+	/// An enum value.
+	/// </summary>
+	partial class EnumValueinEXT_structural_metadata : ExtraProperties
+	{
+	
+		private String _description;
+		
+		private String _name;
+		
+		private Int32 _value;
+		
+	
+		protected override void SerializeProperties(Utf8JsonWriter writer)
+		{
+			base.SerializeProperties(writer);
+			SerializeProperty(writer, "description", _description);
+			SerializeProperty(writer, "name", _name);
+			SerializeProperty(writer, "value", _value);
+		}
+	
+		protected override void DeserializeProperty(string jsonPropertyName, ref Utf8JsonReader reader)
+		{
+			switch (jsonPropertyName)
+			{
+				case "description": _description = DeserializePropertyValue<String>(ref reader); break;
+				case "name": _name = DeserializePropertyValue<String>(ref reader); break;
+				case "value": _value = DeserializePropertyValue<Int32>(ref reader); break;
+				default: base.DeserializeProperty(jsonPropertyName,ref reader); break;
+			}
+		}
+	
+	}
+
+	/// <summary>
+	/// An object defining the values of an enum.
+	/// </summary>
+	partial class EnuminEXT_structural_metadata : ExtraProperties
+	{
+	
+		private String _description;
+		
+		private String _name;
+		
+		private const IntegerType _valueTypeDefault = IntegerType.UINT16;
+		private IntegerType? _valueType = _valueTypeDefault;
+		
+		private const int _valuesMinItems = 1;
+		private List<EnumValueinEXT_structural_metadata> _values;
+		
+	
+		protected override void SerializeProperties(Utf8JsonWriter writer)
+		{
+			base.SerializeProperties(writer);
+			SerializeProperty(writer, "description", _description);
+			SerializeProperty(writer, "name", _name);
+			SerializePropertyEnumSymbol<IntegerType>(writer, "valueType", _valueType, _valueTypeDefault);
+			SerializeProperty(writer, "values", _values, _valuesMinItems);
+		}
+	
+		protected override void DeserializeProperty(string jsonPropertyName, ref Utf8JsonReader reader)
+		{
+			switch (jsonPropertyName)
+			{
+				case "description": _description = DeserializePropertyValue<String>(ref reader); break;
+				case "name": _name = DeserializePropertyValue<String>(ref reader); break;
+				case "valueType": _valueType = DeserializePropertyValue<IntegerType>(ref reader); break;
+				case "values": DeserializePropertyList<EnumValueinEXT_structural_metadata>(ref reader, _values); break;
+				default: base.DeserializeProperty(jsonPropertyName,ref reader); break;
+			}
+		}
+	
+	}
+
+	/// <summary>
+	/// An object defining classes and enums.
+	/// </summary>
+	partial class SchemainEXT_structural_metadata : ExtraProperties
+	{
+	
+		private Dictionary<String,ClassinEXT_structural_metadata> _classes;
+		
+		private String _description;
+		
+		private Dictionary<String,EnuminEXT_structural_metadata> _enums;
+		
+		private String _id;
+		
+		private String _name;
+		
+		private String _version;
+		
+	
+		protected override void SerializeProperties(Utf8JsonWriter writer)
+		{
+			base.SerializeProperties(writer);
+			SerializeProperty(writer, "classes", _classes);
+			SerializeProperty(writer, "description", _description);
+			SerializeProperty(writer, "enums", _enums);
+			SerializeProperty(writer, "id", _id);
+			SerializeProperty(writer, "name", _name);
+			SerializeProperty(writer, "version", _version);
+		}
+	
+		protected override void DeserializeProperty(string jsonPropertyName, ref Utf8JsonReader reader)
+		{
+			switch (jsonPropertyName)
+			{
+				case "classes": DeserializePropertyDictionary<ClassinEXT_structural_metadata>(ref reader, _classes); break;
+				case "description": _description = DeserializePropertyValue<String>(ref reader); break;
+				case "enums": DeserializePropertyDictionary<EnuminEXT_structural_metadata>(ref reader, _enums); break;
+				case "id": _id = DeserializePropertyValue<String>(ref reader); break;
+				case "name": _name = DeserializePropertyValue<String>(ref reader); break;
+				case "version": _version = DeserializePropertyValue<String>(ref reader); break;
+				default: base.DeserializeProperty(jsonPropertyName,ref reader); break;
+			}
+		}
+	
+	}
+
+	/// <summary>
+	/// An array of binary property values.
+	/// </summary>
+	partial class PropertyTablePropertyinEXT_structural_metadata : ExtraProperties
+	{
+	
+		private const StringOffsets _arrayOffsetTypeDefault = StringOffsets.UINT32;
+		private StringOffsets? _arrayOffsetType = _arrayOffsetTypeDefault;
+		
+		private Int32? _arrayOffsets;
+		
+		private Object _max;
+		
+		private Object _min;
+		
+		private Object _offset;
+		
+		private Object _scale;
+		
+		private const StringOffsets _stringOffsetTypeDefault = StringOffsets.UINT32;
+		private StringOffsets? _stringOffsetType = _stringOffsetTypeDefault;
+		
+		private Int32? _stringOffsets;
+		
+		private Int32 _values;
+		
+	
+		protected override void SerializeProperties(Utf8JsonWriter writer)
+		{
+			base.SerializeProperties(writer);
+			SerializePropertyEnumSymbol<StringOffsets>(writer, "arrayOffsetType", _arrayOffsetType, _arrayOffsetTypeDefault);
+			SerializeProperty(writer, "arrayOffsets", _arrayOffsets);
+			SerializeProperty(writer, "max", _max);
+			SerializeProperty(writer, "min", _min);
+			SerializeProperty(writer, "offset", _offset);
+			SerializeProperty(writer, "scale", _scale);
+			SerializePropertyEnumSymbol<StringOffsets>(writer, "stringOffsetType", _stringOffsetType, _stringOffsetTypeDefault);
+			SerializeProperty(writer, "stringOffsets", _stringOffsets);
+			SerializeProperty(writer, "values", _values);
+		}
+	
+		protected override void DeserializeProperty(string jsonPropertyName, ref Utf8JsonReader reader)
+		{
+			switch (jsonPropertyName)
+			{
+				case "arrayOffsetType": _arrayOffsetType = DeserializePropertyValue<StringOffsets>(ref reader); break;
+				case "arrayOffsets": _arrayOffsets = DeserializePropertyValue<Int32?>(ref reader); break;
+				case "max": _max = DeserializePropertyValue<Object>(ref reader); break;
+				case "min": _min = DeserializePropertyValue<Object>(ref reader); break;
+				case "offset": _offset = DeserializePropertyValue<Object>(ref reader); break;
+				case "scale": _scale = DeserializePropertyValue<Object>(ref reader); break;
+				case "stringOffsetType": _stringOffsetType = DeserializePropertyValue<StringOffsets>(ref reader); break;
+				case "stringOffsets": _stringOffsets = DeserializePropertyValue<Int32?>(ref reader); break;
+				case "values": _values = DeserializePropertyValue<Int32>(ref reader); break;
+				default: base.DeserializeProperty(jsonPropertyName,ref reader); break;
+			}
+		}
+	
+	}
+
+	/// <summary>
+	/// Properties conforming to a class, organized as property values stored in binary columnar arrays.
+	/// </summary>
+	partial class PropertyTableinEXT_structural_metadata : ExtraProperties
+	{
+	
+		private String _class;
+		
+		private const Int32 _countMinimum = 1;
+		private Int32 _count;
+		
+		private String _name;
+		
+		private Dictionary<String,PropertyTablePropertyinEXT_structural_metadata> _properties;
+		
+	
+		protected override void SerializeProperties(Utf8JsonWriter writer)
+		{
+			base.SerializeProperties(writer);
+			SerializeProperty(writer, "class", _class);
+			SerializeProperty(writer, "count", _count);
+			SerializeProperty(writer, "name", _name);
+			SerializeProperty(writer, "properties", _properties);
+		}
+	
+		protected override void DeserializeProperty(string jsonPropertyName, ref Utf8JsonReader reader)
+		{
+			switch (jsonPropertyName)
+			{
+				case "class": _class = DeserializePropertyValue<String>(ref reader); break;
+				case "count": _count = DeserializePropertyValue<Int32>(ref reader); break;
+				case "name": _name = DeserializePropertyValue<String>(ref reader); break;
+				case "properties": DeserializePropertyDictionary<PropertyTablePropertyinEXT_structural_metadata>(ref reader, _properties); break;
+				default: base.DeserializeProperty(jsonPropertyName,ref reader); break;
+			}
+		}
+	
+	}
+
+	/// <summary>
+	/// A texture containing property values.
+	/// </summary>
+	partial class PropertyTexturePropertyinEXT_structural_metadata : TextureInfo
+	{
+
+        private static readonly Int32[] _channelsDefault = new Int32[1] { 0 }; 
+		private Int32[] _channels = _channelsDefault;
+		
+		private Object _max;
+		
+		private Object _min;
+		
+		private Object _offset;
+		
+		private Object _scale;
+		
+	
+		protected override void SerializeProperties(Utf8JsonWriter writer)
+		{
+			base.SerializeProperties(writer);
+			SerializeProperty(writer,"channels",_channels);
+			SerializeProperty(writer, "max", _max);
+			SerializeProperty(writer, "min", _min);
+			SerializeProperty(writer, "offset", _offset);
+			SerializeProperty(writer, "scale", _scale);
+		}
+	
+		protected override void DeserializeProperty(string jsonPropertyName, ref Utf8JsonReader reader)
+		{
+			switch (jsonPropertyName)
+			{
+				case "channels": DeserializePropertyList<Int32>(ref reader, _channels); break;
+				case "max": _max = DeserializePropertyValue<Object>(ref reader); break;
+				case "min": _min = DeserializePropertyValue<Object>(ref reader); break;
+				case "offset": _offset = DeserializePropertyValue<Object>(ref reader); break;
+				case "scale": _scale = DeserializePropertyValue<Object>(ref reader); break;
+				default: base.DeserializeProperty(jsonPropertyName,ref reader); break;
+			}
+		}
+	
+	}
+
+	/// <summary>
+	/// Properties conforming to a class, organized as property values stored in textures.
+	/// </summary>
+	partial class PropertyTextureinEXT_structural_metadata : ExtraProperties
+	{
+	
+		private String _class;
+		
+		private String _name;
+		
+		private Dictionary<String,PropertyTexturePropertyinEXT_structural_metadata> _properties;
+		
+	
+		protected override void SerializeProperties(Utf8JsonWriter writer)
+		{
+			base.SerializeProperties(writer);
+			SerializeProperty(writer, "class", _class);
+			SerializeProperty(writer, "name", _name);
+			SerializeProperty(writer, "properties", _properties);
+		}
+	
+		protected override void DeserializeProperty(string jsonPropertyName, ref Utf8JsonReader reader)
+		{
+			switch (jsonPropertyName)
+			{
+				case "class": _class = DeserializePropertyValue<String>(ref reader); break;
+				case "name": _name = DeserializePropertyValue<String>(ref reader); break;
+				case "properties": DeserializePropertyDictionary<PropertyTexturePropertyinEXT_structural_metadata>(ref reader, _properties); break;
+				default: base.DeserializeProperty(jsonPropertyName,ref reader); break;
+			}
+		}
+	
+	}
+
+	/// <summary>
+	/// An attribute containing property values.
+	/// </summary>
+	partial class PropertyAttributePropertyinEXT_structural_metadata : ExtraProperties
+	{
+	
+		private String _attribute;
+		
+		private Object _max;
+		
+		private Object _min;
+		
+		private Object _offset;
+		
+		private Object _scale;
+		
+	
+		protected override void SerializeProperties(Utf8JsonWriter writer)
+		{
+			base.SerializeProperties(writer);
+			SerializeProperty(writer, "attribute", _attribute);
+			SerializeProperty(writer, "max", _max);
+			SerializeProperty(writer, "min", _min);
+			SerializeProperty(writer, "offset", _offset);
+			SerializeProperty(writer, "scale", _scale);
+		}
+	
+		protected override void DeserializeProperty(string jsonPropertyName, ref Utf8JsonReader reader)
+		{
+			switch (jsonPropertyName)
+			{
+				case "attribute": _attribute = DeserializePropertyValue<String>(ref reader); break;
+				case "max": _max = DeserializePropertyValue<Object>(ref reader); break;
+				case "min": _min = DeserializePropertyValue<Object>(ref reader); break;
+				case "offset": _offset = DeserializePropertyValue<Object>(ref reader); break;
+				case "scale": _scale = DeserializePropertyValue<Object>(ref reader); break;
+				default: base.DeserializeProperty(jsonPropertyName,ref reader); break;
+			}
+		}
+	
+	}
+
+	/// <summary>
+	/// Properties conforming to a class, organized as property values stored in attributes.
+	/// </summary>
+	partial class PropertyAttributeinEXT_structural_metadata : ExtraProperties
+	{
+	
+		private String _class;
+		
+		private String _name;
+		
+		private Dictionary<String,PropertyAttributePropertyinEXT_structural_metadata> _properties;
+		
+	
+		protected override void SerializeProperties(Utf8JsonWriter writer)
+		{
+			base.SerializeProperties(writer);
+			SerializeProperty(writer, "class", _class);
+			SerializeProperty(writer, "name", _name);
+			SerializeProperty(writer, "properties", _properties);
+		}
+	
+		protected override void DeserializeProperty(string jsonPropertyName, ref Utf8JsonReader reader)
+		{
+			switch (jsonPropertyName)
+			{
+				case "class": _class = DeserializePropertyValue<String>(ref reader); break;
+				case "name": _name = DeserializePropertyValue<String>(ref reader); break;
+				case "properties": DeserializePropertyDictionary<PropertyAttributePropertyinEXT_structural_metadata>(ref reader, _properties); break;
+				default: base.DeserializeProperty(jsonPropertyName,ref reader); break;
+			}
+		}
+	
+	}
+
+	/// <summary>
+	/// glTF extension that provides structural metadata about vertices, texels, and features in a glTF asset.
+	/// </summary>
+	partial class EXTStructuralMetaData : ExtraProperties
+	{
+	
+		private const int _propertyAttributesMinItems = 1;
+		private List<PropertyAttributeinEXT_structural_metadata> _propertyAttributes;
+		
+		private const int _propertyTablesMinItems = 1;
+		private List<PropertyTableinEXT_structural_metadata> _propertyTables;
+		
+		private const int _propertyTexturesMinItems = 1;
+		private List<PropertyTextureinEXT_structural_metadata> _propertyTextures;
+		
+		private SchemainEXT_structural_metadata _schema;
+		
+		private String _schemaUri;
+		
+	
+		protected override void SerializeProperties(Utf8JsonWriter writer)
+		{
+			base.SerializeProperties(writer);
+			SerializeProperty(writer, "propertyAttributes", _propertyAttributes, _propertyAttributesMinItems);
+			SerializeProperty(writer, "propertyTables", _propertyTables, _propertyTablesMinItems);
+			SerializeProperty(writer, "propertyTextures", _propertyTextures, _propertyTexturesMinItems);
+			SerializePropertyObject(writer, "schema", _schema);
+			SerializeProperty(writer, "schemaUri", _schemaUri);
+		}
+	
+		protected override void DeserializeProperty(string jsonPropertyName, ref Utf8JsonReader reader)
+		{
+			switch (jsonPropertyName)
+			{
+				case "propertyAttributes": DeserializePropertyList<PropertyAttributeinEXT_structural_metadata>(ref reader, _propertyAttributes); break;
+				case "propertyTables": DeserializePropertyList<PropertyTableinEXT_structural_metadata>(ref reader, _propertyTables); break;
+				case "propertyTextures": DeserializePropertyList<PropertyTextureinEXT_structural_metadata>(ref reader, _propertyTextures); break;
+				case "schema": _schema = DeserializePropertyValue<SchemainEXT_structural_metadata>(ref reader); break;
+				case "schemaUri": _schemaUri = DeserializePropertyValue<String>(ref reader); break;
+				default: base.DeserializeProperty(jsonPropertyName,ref reader); break;
+			}
+		}
+	
+	}
+
 }
