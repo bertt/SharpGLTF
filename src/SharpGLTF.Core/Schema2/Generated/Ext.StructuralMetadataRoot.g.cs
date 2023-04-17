@@ -94,7 +94,7 @@ namespace SharpGLTF.Schema2
 	/// <summary>
 	/// A class property.
 	/// </summary>
-	partial class ClassPropertyinEXT_structural_metadata : ExtraProperties
+	partial class ClassProperty : ExtraProperties
 	{
 	
 		private static readonly Boolean _arrayDefault = false;
@@ -184,14 +184,14 @@ namespace SharpGLTF.Schema2
 	/// <summary>
 	/// A class containing a set of properties.
 	/// </summary>
-	partial class ClassinEXT_structural_metadata : ExtraProperties
+	partial class StructuralMetadataClass : ExtraProperties
 	{
 	
 		private String _description;
 		
 		private String _name;
 		
-		private Dictionary<String,ClassPropertyinEXT_structural_metadata> _properties;
+		private Dictionary<String,ClassProperty> _properties;
 		
 	
 		protected override void SerializeProperties(Utf8JsonWriter writer)
@@ -208,7 +208,7 @@ namespace SharpGLTF.Schema2
 			{
 				case "description": _description = DeserializePropertyValue<String>(ref reader); break;
 				case "name": _name = DeserializePropertyValue<String>(ref reader); break;
-				case "properties": DeserializePropertyDictionary<ClassPropertyinEXT_structural_metadata>(ref reader, _properties); break;
+				case "properties": DeserializePropertyDictionary<ClassProperty>(ref reader, _properties); break;
 				default: base.DeserializeProperty(jsonPropertyName,ref reader); break;
 			}
 		}
@@ -218,7 +218,7 @@ namespace SharpGLTF.Schema2
 	/// <summary>
 	/// An enum value.
 	/// </summary>
-	partial class EnumValueinEXT_structural_metadata : ExtraProperties
+	partial class EnumValue : ExtraProperties
 	{
 	
 		private String _description;
@@ -252,7 +252,7 @@ namespace SharpGLTF.Schema2
 	/// <summary>
 	/// An object defining the values of an enum.
 	/// </summary>
-	partial class EnuminEXT_structural_metadata : ExtraProperties
+	partial class StructuralMetadataEnum : ExtraProperties
 	{
 	
 		private String _description;
@@ -263,7 +263,7 @@ namespace SharpGLTF.Schema2
 		private IntegerType? _valueType = _valueTypeDefault;
 		
 		private const int _valuesMinItems = 1;
-		private List<EnumValueinEXT_structural_metadata> _values;
+		private List<EnumValue> _values;
 		
 	
 		protected override void SerializeProperties(Utf8JsonWriter writer)
@@ -282,7 +282,7 @@ namespace SharpGLTF.Schema2
 				case "description": _description = DeserializePropertyValue<String>(ref reader); break;
 				case "name": _name = DeserializePropertyValue<String>(ref reader); break;
 				case "valueType": _valueType = DeserializePropertyValue<IntegerType>(ref reader); break;
-				case "values": DeserializePropertyList<EnumValueinEXT_structural_metadata>(ref reader, _values); break;
+				case "values": DeserializePropertyList<EnumValue>(ref reader, _values); break;
 				default: base.DeserializeProperty(jsonPropertyName,ref reader); break;
 			}
 		}
@@ -292,14 +292,14 @@ namespace SharpGLTF.Schema2
 	/// <summary>
 	/// An object defining classes and enums.
 	/// </summary>
-	partial class SchemainEXT_structural_metadata : ExtraProperties
+	partial class StructuralMetadataSchema : ExtraProperties
 	{
 	
-		private Dictionary<String,ClassinEXT_structural_metadata> _classes;
+		private Dictionary<String,StructuralMetadataClass> _classes;
 		
 		private String _description;
 		
-		private Dictionary<String,EnuminEXT_structural_metadata> _enums;
+		private Dictionary<String,StructuralMetadataEnum> _enums;
 		
 		private String _id;
 		
@@ -323,9 +323,9 @@ namespace SharpGLTF.Schema2
 		{
 			switch (jsonPropertyName)
 			{
-				case "classes": DeserializePropertyDictionary<ClassinEXT_structural_metadata>(ref reader, _classes); break;
+				case "classes": DeserializePropertyDictionary<StructuralMetadataClass>(ref reader, _classes); break;
 				case "description": _description = DeserializePropertyValue<String>(ref reader); break;
-				case "enums": DeserializePropertyDictionary<EnuminEXT_structural_metadata>(ref reader, _enums); break;
+				case "enums": DeserializePropertyDictionary<StructuralMetadataEnum>(ref reader, _enums); break;
 				case "id": _id = DeserializePropertyValue<String>(ref reader); break;
 				case "name": _name = DeserializePropertyValue<String>(ref reader); break;
 				case "version": _version = DeserializePropertyValue<String>(ref reader); break;
@@ -338,10 +338,10 @@ namespace SharpGLTF.Schema2
 	/// <summary>
 	/// An array of binary property values.
 	/// </summary>
-	partial class PropertyTablePropertyinEXT_structural_metadata : ExtraProperties
+	partial class PropertyTableProperty : ExtraProperties
 	{
 	
-		private const StringOffsets _arrayOffsetTypeDefault = StringOffsets.UINT32;
+		private const StringOffsets _arrayOffsetTypeDefault = Schema2.StringOffsets.UINT32;
 		private StringOffsets? _arrayOffsetType = _arrayOffsetTypeDefault;
 		
 		private Int32? _arrayOffsets;
@@ -354,7 +354,7 @@ namespace SharpGLTF.Schema2
 		
 		private Object _scale;
 		
-		private const StringOffsets _stringOffsetTypeDefault = StringOffsets.UINT32;
+		private const StringOffsets _stringOffsetTypeDefault = Schema2.StringOffsets.UINT32;
 		private StringOffsets? _stringOffsetType = _stringOffsetTypeDefault;
 		
 		private Int32? _stringOffsets;
@@ -398,7 +398,7 @@ namespace SharpGLTF.Schema2
 	/// <summary>
 	/// Properties conforming to a class, organized as property values stored in binary columnar arrays.
 	/// </summary>
-	partial class PropertyTableinEXT_structural_metadata : ExtraProperties
+	partial class PropertyTable : ExtraProperties
 	{
 	
 		private String _class;
@@ -408,7 +408,7 @@ namespace SharpGLTF.Schema2
 		
 		private String _name;
 		
-		private Dictionary<String,PropertyTablePropertyinEXT_structural_metadata> _properties;
+		private Dictionary<String,PropertyTableProperty> _properties;
 		
 	
 		protected override void SerializeProperties(Utf8JsonWriter writer)
@@ -427,7 +427,7 @@ namespace SharpGLTF.Schema2
 				case "class": _class = DeserializePropertyValue<String>(ref reader); break;
 				case "count": _count = DeserializePropertyValue<Int32>(ref reader); break;
 				case "name": _name = DeserializePropertyValue<String>(ref reader); break;
-				case "properties": DeserializePropertyDictionary<PropertyTablePropertyinEXT_structural_metadata>(ref reader, _properties); break;
+				case "properties": DeserializePropertyDictionary<PropertyTableProperty>(ref reader, _properties); break;
 				default: base.DeserializeProperty(jsonPropertyName,ref reader); break;
 			}
 		}
@@ -437,13 +437,12 @@ namespace SharpGLTF.Schema2
 	/// <summary>
 	/// A texture containing property values.
 	/// </summary>
-	partial class PropertyTexturePropertyinEXT_structural_metadata : TextureInfo
+	partial class PropertyTextureProperty : TextureInfo
 	{
+        private static readonly Int32[] _channelsDefault = new int[1] { 0 };
+        private Int32[] _channels = _channelsDefault;
 
-        private static readonly Int32[] _channelsDefault = new Int32[1] { 0 }; 
-		private Int32[] _channels = _channelsDefault;
-		
-		private Object _max;
+        private Object _max;
 		
 		private Object _min;
 		
@@ -480,14 +479,14 @@ namespace SharpGLTF.Schema2
 	/// <summary>
 	/// Properties conforming to a class, organized as property values stored in textures.
 	/// </summary>
-	partial class PropertyTextureinEXT_structural_metadata : ExtraProperties
+	partial class PropertyTexture : ExtraProperties
 	{
 	
 		private String _class;
 		
 		private String _name;
 		
-		private Dictionary<String,PropertyTexturePropertyinEXT_structural_metadata> _properties;
+		private Dictionary<String,PropertyTextureProperty> _properties;
 		
 	
 		protected override void SerializeProperties(Utf8JsonWriter writer)
@@ -504,7 +503,7 @@ namespace SharpGLTF.Schema2
 			{
 				case "class": _class = DeserializePropertyValue<String>(ref reader); break;
 				case "name": _name = DeserializePropertyValue<String>(ref reader); break;
-				case "properties": DeserializePropertyDictionary<PropertyTexturePropertyinEXT_structural_metadata>(ref reader, _properties); break;
+				case "properties": DeserializePropertyDictionary<PropertyTextureProperty>(ref reader, _properties); break;
 				default: base.DeserializeProperty(jsonPropertyName,ref reader); break;
 			}
 		}
@@ -514,7 +513,7 @@ namespace SharpGLTF.Schema2
 	/// <summary>
 	/// An attribute containing property values.
 	/// </summary>
-	partial class PropertyAttributePropertyinEXT_structural_metadata : ExtraProperties
+	partial class PropertyAttributeProperty : ExtraProperties
 	{
 	
 		private String _attribute;
@@ -563,7 +562,7 @@ namespace SharpGLTF.Schema2
 		
 		private String _name;
 		
-		private Dictionary<String,PropertyAttributePropertyinEXT_structural_metadata> _properties;
+		private Dictionary<String,PropertyAttributeProperty> _properties;
 		
 	
 		protected override void SerializeProperties(Utf8JsonWriter writer)
@@ -580,7 +579,7 @@ namespace SharpGLTF.Schema2
 			{
 				case "class": _class = DeserializePropertyValue<String>(ref reader); break;
 				case "name": _name = DeserializePropertyValue<String>(ref reader); break;
-				case "properties": DeserializePropertyDictionary<PropertyAttributePropertyinEXT_structural_metadata>(ref reader, _properties); break;
+				case "properties": DeserializePropertyDictionary<PropertyAttributeProperty>(ref reader, _properties); break;
 				default: base.DeserializeProperty(jsonPropertyName,ref reader); break;
 			}
 		}
@@ -597,12 +596,12 @@ namespace SharpGLTF.Schema2
 		private List<PropertyAttributeinEXT_structural_metadata> _propertyAttributes;
 		
 		private const int _propertyTablesMinItems = 1;
-		private List<PropertyTableinEXT_structural_metadata> _propertyTables;
+		private List<PropertyTable> _propertyTables;
 		
 		private const int _propertyTexturesMinItems = 1;
-		private List<PropertyTextureinEXT_structural_metadata> _propertyTextures;
+		private List<PropertyTexture> _propertyTextures;
 		
-		private SchemainEXT_structural_metadata _schema;
+		private StructuralMetadataSchema _schema;
 		
 		private String _schemaUri;
 		
@@ -622,9 +621,9 @@ namespace SharpGLTF.Schema2
 			switch (jsonPropertyName)
 			{
 				case "propertyAttributes": DeserializePropertyList<PropertyAttributeinEXT_structural_metadata>(ref reader, _propertyAttributes); break;
-				case "propertyTables": DeserializePropertyList<PropertyTableinEXT_structural_metadata>(ref reader, _propertyTables); break;
-				case "propertyTextures": DeserializePropertyList<PropertyTextureinEXT_structural_metadata>(ref reader, _propertyTextures); break;
-				case "schema": _schema = DeserializePropertyValue<SchemainEXT_structural_metadata>(ref reader); break;
+				case "propertyTables": DeserializePropertyList<PropertyTable>(ref reader, _propertyTables); break;
+				case "propertyTextures": DeserializePropertyList<PropertyTexture>(ref reader, _propertyTextures); break;
+				case "schema": _schema = DeserializePropertyValue<StructuralMetadataSchema>(ref reader); break;
 				case "schemaUri": _schemaUri = DeserializePropertyValue<String>(ref reader); break;
 				default: base.DeserializeProperty(jsonPropertyName,ref reader); break;
 			}

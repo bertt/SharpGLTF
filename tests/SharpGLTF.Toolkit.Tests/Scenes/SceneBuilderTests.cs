@@ -25,6 +25,36 @@ namespace SharpGLTF.Scenes
     [Category("Toolkit.Scenes")]
     public partial class SceneBuilderTests
     {
+
+        [Test(Description = "Creates a simple triangle with Cesium EXT_Structural_metadata")]
+        public void CreateCesiumWithStructualMetadataTriangleScene()
+        {
+            TestContext.CurrentContext.AttachGltfValidatorLinks();
+
+            var material = MaterialBuilder.CreateDefault();
+
+            var mesh = new MeshBuilder<VertexPosition>("mesh");
+
+            var prim = mesh.UsePrimitive(material);
+            prim.AddTriangle(new VertexPosition(-10, 0, 0), new VertexPosition(10, 0, 0), new VertexPosition(0, 10, 0));
+
+            var scene = new SceneBuilder();
+
+            scene.AddRigidMesh(mesh, Matrix4x4.Identity);
+
+            var model = scene.ToGltf2();
+
+            model.DoSomething();
+
+            var ctx = new ValidationResult(model, ValidationMode.Strict, true);
+            model.ValidateContent(ctx.GetContext());
+            model.SaveGLTF(@"d:\aaa\test33.gltf");
+            scene.AttachToCurrentTest("cesium_ext_structural_metadata_triangle.glb");
+            scene.AttachToCurrentTest("cesium_ext_structural_metadata_triangle.gltf");
+            scene.AttachToCurrentTest("cesium_ext_structural_metadata_triangle.plotly");
+        }
+
+
         [Test(Description = "Creates a simple triangle with Cesium outlining")]
         public void CreateCesiumOutlineTriangleScene()
         {
