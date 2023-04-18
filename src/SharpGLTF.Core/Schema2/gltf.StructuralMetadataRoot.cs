@@ -25,6 +25,15 @@ namespace SharpGLTF.Schema2
         }
     }
 
+    partial class StructuralMetadataSchema
+    {
+        public Dictionary<String, StructuralMetadataClass> Classes
+        {
+            get { return _classes; }
+            set { _classes = value; }
+        }
+    }
+
     partial class PropertyTable
     {
         public string Class
@@ -91,7 +100,7 @@ namespace SharpGLTF.Schema2
             }
         }
 
-        public Int32? StringOffsets
+        public Int32? StringOffsets1
         {
             get { return _stringOffsets; }
             set { _stringOffsets = value; }
@@ -103,6 +112,50 @@ namespace SharpGLTF.Schema2
             set { _values = value; }
 
         }
+    }
+
+    partial class StructuralMetadataClass
+    {
+        public string Description
+        {
+            get { return _description; }
+            set { _description = value; }
+        }
+
+        public string Name
+        {
+            get { return _name; }
+            set { _name = value; }
+        }
+
+        public Dictionary<String, ClassProperty> Properties
+        {
+            get { return _properties; }
+            set { _properties = value; }
+        }
+    }
+
+    partial class ClassProperty
+    {
+        public ElementType Type
+        {
+            get { return _type; }
+            set { _type = value; }
+        }
+
+        public Object NoData
+        {
+            get { return _noData; }
+            set { _noData = value; }
+        }
+
+        public DataType? ComponentType
+        {
+            get { return _componentType; }
+            set { _componentType = value; }
+        }
+
+        // Todo: add other properties...
     }
 
     partial class ModelRoot
@@ -118,13 +171,13 @@ namespace SharpGLTF.Schema2
             var properties = new Dictionary<String, PropertyTableProperty>();
             var bgtType = new PropertyTableProperty();
             bgtType.StringOffsetType = StringOffsets.UINT32;
-            bgtType.StringOffsets = 3;
+            bgtType.StringOffsets1 = 3;
             bgtType.Values = 2;
             properties.Add("bgt_type", bgtType);
 
             var bronhouder = new PropertyTableProperty();
             bronhouder.StringOffsetType = StringOffsets.UINT32;
-            bronhouder.StringOffsets = 5;
+            bronhouder.StringOffsets1 = 5;
             bronhouder.Values = 4;
             properties.Add("bronhouder", bronhouder);
 
@@ -135,6 +188,32 @@ namespace SharpGLTF.Schema2
             propertyTable.Properties = properties;
             ext.PropertyTables = new List<PropertyTable>() { propertyTable };
 
+            var structuralMetadataSchema = new StructuralMetadataSchema();
+            var structuralMetadataClass = new StructuralMetadataClass();
+            structuralMetadataClass.Name = "terrain";
+            structuralMetadataClass.Description = "class description";
+            var properties1 = new Dictionary<String, ClassProperty>();
+            var p0 = new ClassProperty();
+            p0.Type = ElementType.STRING;
+            properties1.Add("bgt_type", p0);
+
+            var p1 = new ClassProperty();
+            p1.Type = ElementType.STRING;
+            properties1.Add("bronhouder", p1);
+
+            var p2 = new ClassProperty();
+            p2.Type = ElementType.SCALAR;
+            p2.ComponentType = DataType.INT32;
+            p2.NoData = 2147483647;
+            properties1.Add("objectid", p2);
+
+            structuralMetadataClass.Properties = properties1;
+            ext.Schema = structuralMetadataSchema;
+
+            structuralMetadataSchema.Classes = new Dictionary<string, StructuralMetadataClass>
+            {
+                { "terrain", structuralMetadataClass }
+            };
         }
     }
 }
