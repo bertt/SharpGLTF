@@ -160,45 +160,54 @@ namespace SharpGLTF.Schema2
 
     partial class ModelRoot
     {
-        public void AddIntMetadata(string name, List<uint> values, bool addAccessor = true, bool addMetaDataExt = true)
+        public void AddIntMetadata(string name, List<uint> values)
         {
-            if (addAccessor)
+            var dstData = new Byte[values.Count * 4];
+            var dstArray = new Memory.IntegerArray(dstData, IndexEncodingType.UNSIGNED_INT);
+            for (int i = 0; i < values.Count; ++i) { dstArray[i] = values[i]; }
+
+            var bview = UseBufferView(dstData);
+            var accessor = CreateAccessor("TestAccessor");
+
+            accessor.SetData(bview, 0, dstArray.Count, DimensionType.SCALAR, EncodingType.UNSIGNED_INT, false);
+            var index = accessor.LogicalIndex;
+            
+            // Schema
+            var ext = UseExtension<EXTStructuralMetaData>();
+
+            var structuralMetadataSchema = new StructuralMetadataSchema();
+            var structuralMetadataClass = new StructuralMetadataClass();
+            structuralMetadataClass.Name = "terrain";
+            structuralMetadataClass.Description = "class description";
+            var properties1 = new Dictionary<String, ClassProperty>();
+
+            var p2 = new ClassProperty();
+            p2.Type = ElementType.SCALAR;
+            p2.ComponentType = DataType.INT32;
+            p2.NoData = 2147483647;
+            properties1.Add("objectid", p2);
+
+            structuralMetadataClass.Properties = properties1;
+            ext.Schema = structuralMetadataSchema;
+
+            structuralMetadataSchema.Classes = new Dictionary<string, StructuralMetadataClass>
             {
-                var dstData = new Byte[values.Count * 4];
-                var dstArray = new Memory.IntegerArray(dstData, IndexEncodingType.UNSIGNED_INT);
-                for (int i = 0; i < values.Count; ++i) { dstArray[i] = values[i]; }
+            { "terrain", structuralMetadataClass }
+            };
 
-                var bview = UseBufferView(dstData);
-                var accessor = CreateAccessor("TestAccessor");
+            // PropertyTable
+            var propertyTable = new PropertyTable();
+            propertyTable.Name = "propertyTable name";
+            propertyTable.Count = 2;
+            propertyTable.Class = "terrain";
 
-                accessor.SetData(bview, 0, dstArray.Count, DimensionType.SCALAR, EncodingType.UNSIGNED_INT, false);
-                var index = accessor.LogicalIndex;
-            }
+            var properties = new Dictionary<String, PropertyTableProperty>();
+            var objectId = new PropertyTableProperty();
+            objectId.Values = index; // q: is this correct?
+            properties.Add("objectid", objectId);
 
-            if (addMetaDataExt)
-            {
-                var ext = UseExtension<EXTStructuralMetaData>();
-
-                var structuralMetadataSchema = new StructuralMetadataSchema();
-                var structuralMetadataClass = new StructuralMetadataClass();
-                structuralMetadataClass.Name = "terrain";
-                structuralMetadataClass.Description = "class description";
-                var properties1 = new Dictionary<String, ClassProperty>();
-
-                var p2 = new ClassProperty();
-                p2.Type = ElementType.SCALAR;
-                p2.ComponentType = DataType.INT32;
-                p2.NoData = 2147483647;
-                properties1.Add("objectid", p2);
-
-                structuralMetadataClass.Properties = properties1;
-                ext.Schema = structuralMetadataSchema;
-
-                structuralMetadataSchema.Classes = new Dictionary<string, StructuralMetadataClass>
-                {
-                { "terrain", structuralMetadataClass }
-                };
-            }
+            propertyTable.Properties = properties;
+            ext.PropertyTables = new List<PropertyTable>() { propertyTable };
         }
 
         public void DoSomething()
