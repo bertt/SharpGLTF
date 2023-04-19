@@ -13,6 +13,7 @@ using SharpGLTF.Materials;
 using System.Diagnostics;
 using System.Collections.ObjectModel;
 using SharpGLTF.Validation;
+using Newtonsoft.Json.Linq;
 
 namespace SharpGLTF.Scenes
 {
@@ -45,8 +46,29 @@ namespace SharpGLTF.Scenes
 
             var model = scene.ToGltf2();
 
+            var values = new List<uint>() { 0, 1 };
+
             // test fails only when the two flags in next call are set to true (for adding accessor and adding metadata extension)
-            model.AddIntMetadata("testints", new List<uint>() { 0,1}, true, true);
+            bool addAccessor = true;
+            bool addMetadata = true;
+            
+            if (addAccessor)
+            {
+                var dstData = new Byte[values.Count * 4];
+                var dstArray = new Memory.IntegerArray(dstData, IndexEncodingType.UNSIGNED_INT);
+                for (int i = 0; i < values.Count; ++i) { dstArray[i] = values[i]; }
+
+                var bview = model.UseBufferView(dstData);
+                var accessor = model.CreateAccessor("TestAccessor");
+
+                accessor.SetData(bview, 0, dstArray.Count, DimensionType.SCALAR, EncodingType.UNSIGNED_INT, false);
+                var index = accessor.LogicalIndex;
+            }
+
+            if(addMetadata)
+            {
+                model.AddIntMetadata();
+            }
 
             var ctx = new ValidationResult(model, ValidationMode.Strict, true);
             model.ValidateContent(ctx.GetContext());
