@@ -37,6 +37,7 @@ namespace SharpGLTF.Scenes
 
             var prim = mesh.UsePrimitive(material);
             prim.AddTriangle(new VertexPosition(-10, 0, 0), new VertexPosition(10, 0, 0), new VertexPosition(0, 10, 0));
+            prim.AddTriangle(new VertexPosition(10, -10, 0), new VertexPosition(-10, 0, 0), new VertexPosition(0, -10, 0));
 
             var scene = new SceneBuilder();
 
@@ -44,14 +45,17 @@ namespace SharpGLTF.Scenes
 
             var model = scene.ToGltf2();
 
-            model.DoSomething();
+            // test fails only when the two flags in next call are set to true (for adding accessor and adding metadata extension)
+            model.AddIntMetadata("testints", new List<uint>() { 0,1}, true, true);
 
             var ctx = new ValidationResult(model, ValidationMode.Strict, true);
             model.ValidateContent(ctx.GetContext());
-            model.SaveGLTF(@"d:\aaa\test33.gltf");
-            scene.AttachToCurrentTest("cesium_ext_structural_metadata_triangle.glb");
-            scene.AttachToCurrentTest("cesium_ext_structural_metadata_triangle.gltf");
-            scene.AttachToCurrentTest("cesium_ext_structural_metadata_triangle.plotly");
+
+            // following line fails on deepclone
+            model.SaveGLB(@"test.glb");
+            //scene.AttachToCurrentTest("cesium_ext_structural_metadata_triangle.glb");
+            //scene.AttachToCurrentTest("cesium_ext_structural_metadata_triangle.gltf");
+            //scene.AttachToCurrentTest("cesium_ext_structural_metadata_triangle.plotly");
         }
 
 
