@@ -27,6 +27,11 @@ namespace SharpGLTF.Schema2
 
     partial class StructuralMetadataSchema
     {
+        public StructuralMetadataSchema()
+        {
+            Classes = new Dictionary<string, StructuralMetadataClass>();
+        }
+
         public Dictionary<String, StructuralMetadataClass> Classes
         {
             get { return _classes; }
@@ -116,6 +121,11 @@ namespace SharpGLTF.Schema2
 
     partial class StructuralMetadataClass
     {
+        public StructuralMetadataClass()
+        {
+            Properties = new Dictionary<string, ClassProperty>();
+        }
+
         public string Description
         {
             get { return _description; }
@@ -173,7 +183,7 @@ namespace SharpGLTF.Schema2
             var p2 = new ClassProperty();
             p2.Type = ElementType.SCALAR;
             p2.ComponentType = DataType.INT32;
-            p2.NoData = 2147483647;
+            // p2.NoData = 2147483647;
             properties1.Add("objectid", p2);
 
             structuralMetadataClass.Properties = properties1;
