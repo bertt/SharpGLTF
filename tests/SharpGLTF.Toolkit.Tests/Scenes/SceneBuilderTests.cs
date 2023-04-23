@@ -13,6 +13,7 @@ using SharpGLTF.Materials;
 using System.Diagnostics;
 using System.Collections.ObjectModel;
 using SharpGLTF.Validation;
+using Newtonsoft.Json.Linq;
 
 namespace SharpGLTF.Scenes
 {
@@ -53,17 +54,31 @@ namespace SharpGLTF.Scenes
 
             var model = scene.ToGltf2();
 
-            // test fails only when the two flags in next call are set to true (for adding accessor and adding metadata extension)
-            model.AddIntMetadata("testints", new List<uint>() { 0, 1 });
+            
+            // create accessor
+            var values = new List<uint>() { 0, 1 };
+
+            var dstData = new Byte[values.Count * 4];
+            var dstArray = new Memory.IntegerArray(dstData, IndexEncodingType.UNSIGNED_INT);
+            for (int i = 0; i < values.Count; ++i) { dstArray[i] = values[i]; }
+
+            var bview = model.UseBufferView(dstData);
+            var accessor = model.CreateAccessor("TestAccessor");
+
+            accessor.SetData(bview, 0, dstArray.Count, DimensionType.SCALAR, EncodingType.UNSIGNED_INT, false);
+            var index = accessor.LogicalIndex;
+
+            // add the schema
+            model.AddSchema(index);
 
             var ctx = new ValidationResult(model, ValidationMode.Strict, true);
             model.ValidateContent(ctx.GetContext());
 
-            // write to glTF instead of glb with MergeBuffers = false because otherwise there is an serialization error
-            var settings = new WriteSettings();
-            settings.MergeBuffers = false;
-            settings.JsonIndented = true;
-            model.SaveGLTF(@"d:\aaa\test33.gtf", settings);
+            // following line fails on deepclone
+            model.SaveGLB(@"d:\aaa\test35.glb");
+            //scene.AttachToCurrentTest("cesium_ext_structural_metadata_triangle.glb");
+            //scene.AttachToCurrentTest("cesium_ext_structural_metadata_triangle.gltf");
+            //scene.AttachToCurrentTest("cesium_ext_structural_metadata_triangle.plotly");
         }
 
 
