@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace SharpGLTF.Schema2
 {
@@ -10,6 +11,7 @@ namespace SharpGLTF.Schema2
         internal EXTStructuralMetaData(ModelRoot modelRoot)
         {
             this.modelRoot = modelRoot;
+            PropertyTables = new List<PropertyTable>();
         }
 
         internal List<PropertyTable> PropertyTables
@@ -41,6 +43,10 @@ namespace SharpGLTF.Schema2
 
     partial class PropertyTable
     {
+        public PropertyTable()
+        {
+            Properties = new Dictionary<string, PropertyTableProperty> ();
+        }
         public string Class
         {
             get
@@ -170,7 +176,36 @@ namespace SharpGLTF.Schema2
 
     partial class ModelRoot
     {
-        public void AddIntMetadata()
+        private PropertyTable GetPropertyTable(int AccessorId)
+        {
+            var propertyTable = new PropertyTable();
+            propertyTable.Name = "propertyTable name";
+            propertyTable.Count = 2;
+            propertyTable.Class = "terrain";
+
+            var properties = new Dictionary<String, PropertyTableProperty>();
+            //var bgtType = new PropertyTableProperty();
+            //bgtType.StringOffsetType = StringOffsets.UINT32;
+            //bgtType.StringOffsets1 = 3;
+            //bgtType.Values = 2;
+            //properties.Add("bgt_type", bgtType);
+
+            //var bronhouder = new PropertyTableProperty();
+            //bronhouder.StringOffsetType = StringOffsets.UINT32;
+            //bronhouder.StringOffsets1 = 5;
+            //bronhouder.Values = 4;
+            //properties.Add("bronhouder", bronhouder);
+
+            var objectId = new PropertyTableProperty();
+            objectId.Values = AccessorId;
+            properties.Add("objectid", objectId);
+
+            propertyTable.Properties = properties;
+            return propertyTable;
+        }
+
+
+        public void AddSchema(int accessorId)
         {
             var ext = UseExtension<EXTStructuralMetaData>();
 
@@ -193,62 +228,9 @@ namespace SharpGLTF.Schema2
             {
             { "terrain", structuralMetadataClass }
             };
-        }
 
-        public void DoSomething()
-        {
-            var ext = UseExtension<EXTStructuralMetaData>();
-            var propertyTable = new PropertyTable();
-            propertyTable.Name = "propertyTable name";
-            propertyTable.Count = 18;
-            propertyTable.Class = "terrain";
+            ext.PropertyTables = new List<PropertyTable>() { GetPropertyTable(accessorId) };
 
-            var properties = new Dictionary<String, PropertyTableProperty>();
-            var bgtType = new PropertyTableProperty();
-            bgtType.StringOffsetType = StringOffsets.UINT32;
-            bgtType.StringOffsets1 = 3;
-            bgtType.Values = 2;
-            properties.Add("bgt_type", bgtType);
-
-            var bronhouder = new PropertyTableProperty();
-            bronhouder.StringOffsetType = StringOffsets.UINT32;
-            bronhouder.StringOffsets1 = 5;
-            bronhouder.Values = 4;
-            properties.Add("bronhouder", bronhouder);
-
-            var objectId = new PropertyTableProperty();
-            objectId.Values = 6;
-            properties.Add("objectid", objectId);
-
-            propertyTable.Properties = properties;
-            ext.PropertyTables = new List<PropertyTable>() { propertyTable };
-
-            var structuralMetadataSchema = new StructuralMetadataSchema();
-            var structuralMetadataClass = new StructuralMetadataClass();
-            structuralMetadataClass.Name = "terrain";
-            structuralMetadataClass.Description = "class description";
-            var properties1 = new Dictionary<String, ClassProperty>();
-            var p0 = new ClassProperty();
-            p0.Type = ElementType.STRING;
-            properties1.Add("bgt_type", p0);
-
-            var p1 = new ClassProperty();
-            p1.Type = ElementType.STRING;
-            properties1.Add("bronhouder", p1);
-
-            var p2 = new ClassProperty();
-            p2.Type = ElementType.SCALAR;
-            p2.ComponentType = DataType.INT32;
-            p2.NoData = 2147483647;
-            properties1.Add("objectid", p2);
-
-            structuralMetadataClass.Properties = properties1;
-            ext.Schema = structuralMetadataSchema;
-
-            structuralMetadataSchema.Classes = new Dictionary<string, StructuralMetadataClass>
-            {
-                { "terrain", structuralMetadataClass }
-            };
         }
     }
 }

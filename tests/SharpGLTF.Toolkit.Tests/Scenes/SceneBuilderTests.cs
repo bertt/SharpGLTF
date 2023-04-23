@@ -26,6 +26,11 @@ namespace SharpGLTF.Scenes
     [Category("Toolkit.Scenes")]
     public partial class SceneBuilderTests
     {
+        public Vector3 GetNormal((Vector3, Vector3, Vector3) vectors)
+        {
+            // todo: improve this formula
+            return Vector3.UnitX;
+        }
 
         [Test(Description = "Creates a simple triangle with Cesium EXT_Structural_metadata")]
         public void CreateCesiumWithStructualMetadataTriangleScene()
@@ -34,11 +39,14 @@ namespace SharpGLTF.Scenes
 
             var material = MaterialBuilder.CreateDefault();
 
-            var mesh = new MeshBuilder<VertexPosition>("mesh");
+            var mesh = new MeshBuilder<VertexPositionNormal, VertexWithBatchId, VertexEmpty>("mesh");
 
             var prim = mesh.UsePrimitive(material);
-            prim.AddTriangle(new VertexPosition(-10, 0, 0), new VertexPosition(10, 0, 0), new VertexPosition(0, 10, 0));
-            prim.AddTriangle(new VertexPosition(10, -10, 0), new VertexPosition(-10, 0, 0), new VertexPosition(0, -10, 0));
+            var vectors = (new Vector3(-10, 0, 0), new Vector3(10, 0, 0), new Vector3(0, 10, 0));
+            prim.AddTriangleWithBatchId(vectors, GetNormal(vectors), 1000);
+
+            var vectors1 = (new Vector3(10, -10, 0), new Vector3(-10, 0, 0), new Vector3(0, -10, 0));
+            prim.AddTriangleWithBatchId(vectors1, GetNormal(vectors), 1001);
 
             var scene = new SceneBuilder();
 
@@ -46,35 +54,28 @@ namespace SharpGLTF.Scenes
 
             var model = scene.ToGltf2();
 
+            
+            // create accessor
             var values = new List<uint>() { 0, 1 };
 
-            // test fails only when the two flags in next call are set to true (for adding accessor and adding metadata extension)
-            bool addAccessor = true;
-            bool addMetadata = true;
-            
-            if (addAccessor)
-            {
-                var dstData = new Byte[values.Count * 4];
-                var dstArray = new Memory.IntegerArray(dstData, IndexEncodingType.UNSIGNED_INT);
-                for (int i = 0; i < values.Count; ++i) { dstArray[i] = values[i]; }
+            var dstData = new Byte[values.Count * 4];
+            var dstArray = new Memory.IntegerArray(dstData, IndexEncodingType.UNSIGNED_INT);
+            for (int i = 0; i < values.Count; ++i) { dstArray[i] = values[i]; }
 
-                var bview = model.UseBufferView(dstData);
-                var accessor = model.CreateAccessor("TestAccessor");
+            var bview = model.UseBufferView(dstData);
+            var accessor = model.CreateAccessor("TestAccessor");
 
-                accessor.SetData(bview, 0, dstArray.Count, DimensionType.SCALAR, EncodingType.UNSIGNED_INT, false);
-                var index = accessor.LogicalIndex;
-            }
+            accessor.SetData(bview, 0, dstArray.Count, DimensionType.SCALAR, EncodingType.UNSIGNED_INT, false);
+            var index = accessor.LogicalIndex;
 
-            if(addMetadata)
-            {
-                model.AddIntMetadata();
-            }
+            // add the schema
+            model.AddSchema(index);
 
             var ctx = new ValidationResult(model, ValidationMode.Strict, true);
             model.ValidateContent(ctx.GetContext());
 
             // following line fails on deepclone
-            model.SaveGLB(@"test.glb");
+            model.SaveGLB(@"d:\aaa\test35.glb");
             //scene.AttachToCurrentTest("cesium_ext_structural_metadata_triangle.glb");
             //scene.AttachToCurrentTest("cesium_ext_structural_metadata_triangle.gltf");
             //scene.AttachToCurrentTest("cesium_ext_structural_metadata_triangle.plotly");
