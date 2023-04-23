@@ -48,9 +48,6 @@ namespace SharpGLTF.Scenes
             var vectors1 = (new Vector3(10, -10, 0), new Vector3(-10, 0, 0), new Vector3(0, -10, 0));
             prim.AddTriangleWithBatchId(vectors1, GetNormal(vectors), 1001);
 
-            var vectors1 = (new Vector3(10, -10, 0), new Vector3(-10, 0, 0), new Vector3(0, -10, 0));
-            prim.AddTriangleWithBatchId(vectors1, GetNormal(vectors), 1001);
-
             var scene = new SceneBuilder();
 
             scene.AddRigidMesh(mesh, Matrix4x4.Identity);
