@@ -45,6 +45,9 @@ namespace SharpGLTF
             // cesium outlines
             processors.Add(new CesiumPrimitiveOutlineExtension());
 
+            // cesium EXT_strucutal_metadat
+            processors.Add(new ExtStructuralMetadataExtension());
+
             // lights
             processors.Add(new LightsPunctualExtension());
 
