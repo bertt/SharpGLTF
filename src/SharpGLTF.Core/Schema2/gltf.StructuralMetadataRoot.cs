@@ -187,6 +187,7 @@ namespace SharpGLTF.Schema2
             propertyTable.Count = 2;
             propertyTable.Class = "terrain";
 
+
             var properties = new Dictionary<String, PropertyTableProperty>();
             //var bgtType = new PropertyTableProperty();
             //bgtType.StringOffsetType = StringOffsets.UINT32;

@@ -48,7 +48,7 @@ namespace SharpGLTF.Scenes
 
             var model = scene.ToGltf2();
 
-            var featureId = new FeatureID(2, 0);
+            var featureId = new FeatureID(2, 0, 0);
             var featureIds = new List<FeatureID>() { featureId };
             model.LogicalMeshes[0].Primitives[0].SetFeatureIds(featureIds);
 
@@ -97,7 +97,7 @@ namespace SharpGLTF.Scenes
 
             var model = scene.ToGltf2();
 
-            var featureId = new FeatureID(2, 0);
+            var featureId = new FeatureID(2, 0, 0);
             var featureIds = new List<FeatureID>() { featureId };
             model.LogicalMeshes[0].Primitives[0].SetFeatureIds(featureIds);
 
@@ -108,11 +108,10 @@ namespace SharpGLTF.Scenes
             var dstArray = new Memory.IntegerArray(dstData, IndexEncodingType.UNSIGNED_INT);
             for (int i = 0; i < values.Count; ++i) { dstArray[i] = values[i]; }
 
-            var bview = model.UseBufferView(dstData);
-            var accessor = model.CreateAccessor("TestAccessor");
+            //var accessor = model.CreateAccessor("TestAccessor");
 
-            accessor.SetData(bview, 0, dstArray.Count, DimensionType.SCALAR, EncodingType.UNSIGNED_INT, false);
-            var index = accessor.LogicalIndex;
+            var bview = model.UseBufferView(dstData);
+            var index = bview.LogicalIndex;
 
             // add the schema
             model.AddSchema(index);
