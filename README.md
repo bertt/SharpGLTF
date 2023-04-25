@@ -7,6 +7,8 @@
 [![Join the chat at https://discord.gg/y9mnJQY](https://img.shields.io/discord/750776153681166467?color=%237289DA&label=SharpGLTF&logo=discord&logoColor=white)](https://discord.gg/y9mnJQY)
 ---
 
+See ![EXT_Mesh_Features](EXT_mesh_features.md) for work on extension EXT_mesh_features.md
+
 ### Overview
 
 __SharpGLTF__ is a 100% .NET Standard library designed to support
