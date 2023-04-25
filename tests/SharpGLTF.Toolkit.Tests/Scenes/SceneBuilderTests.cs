@@ -48,8 +48,6 @@ namespace SharpGLTF.Scenes
 
             var model = scene.ToGltf2();
 
-            var outlines = new uint[] { 0, 1, 1, 2, 2, 0 };
-
             var featureId = new FeatureID(2, 0);
             var featureIds = new List<FeatureID>() { featureId };
             model.LogicalMeshes[0].Primitives[0].SetFeatureIds(featureIds);
@@ -60,6 +58,8 @@ namespace SharpGLTF.Scenes
 
             var ctx = new ValidationResult(model, ValidationMode.Strict, true);
             model.ValidateContent(ctx.GetContext());
+
+            model.SaveGLB(@"d:\aaa\test34.glb");
 
             scene.AttachToCurrentTest("cesium_outline_triangle.glb");
             scene.AttachToCurrentTest("cesium_outline_triangle.gltf");
@@ -76,7 +76,7 @@ namespace SharpGLTF.Scenes
         }
 
         [Test(Description = "Creates a simple triangle with Cesium EXT_Structural_metadata")]
-        public void CreateCesiumWithStructualMetadataTriangleScene()
+        public void CreateCesiumWithStructualMetadataAndExtMeshFeaturesTriangleScene()
         {
             TestContext.CurrentContext.AttachGltfValidatorLinks();
 
@@ -86,10 +86,10 @@ namespace SharpGLTF.Scenes
 
             var prim = mesh.UsePrimitive(material);
             var vectors = (new Vector3(-10, 0, 0), new Vector3(10, 0, 0), new Vector3(0, 10, 0));
-            prim.AddTriangleWithBatchId(vectors, GetNormal(vectors), 1000);
+            prim.AddTriangleWithBatchId(vectors, GetNormal(vectors), 0);
 
             var vectors1 = (new Vector3(10, -10, 0), new Vector3(-10, 0, 0), new Vector3(0, -10, 0));
-            prim.AddTriangleWithBatchId(vectors1, GetNormal(vectors), 1001);
+            prim.AddTriangleWithBatchId(vectors1, GetNormal(vectors), 1);
 
             var scene = new SceneBuilder();
 
@@ -97,9 +97,12 @@ namespace SharpGLTF.Scenes
 
             var model = scene.ToGltf2();
 
-            
+            var featureId = new FeatureID(2, 0);
+            var featureIds = new List<FeatureID>() { featureId };
+            model.LogicalMeshes[0].Primitives[0].SetFeatureIds(featureIds);
+
             // create accessor
-            var values = new List<uint>() { 0, 1 };
+            var values = new List<uint>() { 1000, 1001 };
 
             var dstData = new Byte[values.Count * 4];
             var dstArray = new Memory.IntegerArray(dstData, IndexEncodingType.UNSIGNED_INT);
@@ -118,7 +121,7 @@ namespace SharpGLTF.Scenes
             model.ValidateContent(ctx.GetContext());
 
             // following line fails on deepclone
-            model.SaveGLB(@"d:\aaa\test35.glb");
+            model.SaveGLB(@"d:\aaa\test36.glb");
             //scene.AttachToCurrentTest("cesium_ext_structural_metadata_triangle.glb");
             //scene.AttachToCurrentTest("cesium_ext_structural_metadata_triangle.gltf");
             //scene.AttachToCurrentTest("cesium_ext_structural_metadata_triangle.plotly");

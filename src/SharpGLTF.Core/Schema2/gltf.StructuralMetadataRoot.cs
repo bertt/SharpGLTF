@@ -99,6 +99,10 @@ namespace SharpGLTF.Schema2
 
     partial class PropertyTableProperty
     {
+        public PropertyTableProperty()
+        {
+
+        }
         public StringOffsets? StringOffsetType
         {
             get

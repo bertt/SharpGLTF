@@ -18,6 +18,7 @@ namespace SharpGLTF.Schema2
         internal MeshExtMeshFeatures(MeshPrimitive meshPrimitive)
         {
             this.meshPrimitive = meshPrimitive;
+            _featureIds = new List<FeatureID>();
         }
 
 
@@ -36,6 +37,10 @@ namespace SharpGLTF.Schema2
 
     public partial class FeatureID
     {
+        public FeatureID()
+        {
+
+        }
         public FeatureID(int featureCount, int? attribute=null, int? propertyTable = null, string label=null)
         {
             _featureCount = featureCount;
