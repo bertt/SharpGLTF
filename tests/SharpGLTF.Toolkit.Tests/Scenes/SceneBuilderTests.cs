@@ -24,9 +24,12 @@ namespace SharpGLTF.Scenes
 
 
 
+
+
     [Category("Toolkit.Scenes")]
     public partial class SceneBuilderTests
     {
+
         [Test(Description = "Creates a simple triangle with Cesium FeatureIds")]
         public void CreateCesiumFeatureIdsTriangleScene()
         {

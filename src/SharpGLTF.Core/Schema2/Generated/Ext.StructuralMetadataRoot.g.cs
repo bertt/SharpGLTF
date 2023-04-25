@@ -476,7 +476,7 @@ namespace SharpGLTF.Schema2
 		}
 	
 	}
-
+	/**
 	/// <summary>
 	/// Properties conforming to a class, organized as property values stored in textures.
 	/// </summary>
@@ -510,6 +510,7 @@ namespace SharpGLTF.Schema2
 		}
 	
 	}
+	*/
 
 	/// <summary>
 	/// An attribute containing property values.

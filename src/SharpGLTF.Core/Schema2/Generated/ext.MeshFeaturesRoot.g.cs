@@ -64,20 +64,20 @@ namespace SharpGLTF.Schema2
 	}
 
 
-	/// <summary>
-	/// The type of the integer enum value.
-	/// </summary>
-	public enum IntegerType
-	{
-		INT8,
-		UINT8,
-		INT16,
-		UINT16,
-		INT32,
-		UINT32,
-		INT64,
-		UINT64,
-	}
+	///// <summary>
+	///// The type of the integer enum value.
+	///// </summary>
+	//public enum IntegerType
+	//{
+	//	INT8,
+	//	UINT8,
+	//	INT16,
+	//	UINT16,
+	//	INT32,
+	//	UINT32,
+	//	INT64,
+	//	UINT64,
+	//}
 
 
 	/// <summary>
@@ -316,88 +316,88 @@ namespace SharpGLTF.Schema2
 	
 	}
 
-	/// <summary>
-	/// An array of binary property values.
-	/// </summary>
-	partial class PropertyTableProperty : ExtraProperties
-	{
+	///// <summary>
+	///// An array of binary property values.
+	///// </summary>
+	//partial class PropertyTableProperty : ExtraProperties
+	//{
 	
-		private Int32? _arrayOffsetBufferView;
+	//	private Int32? _arrayOffsetBufferView;
 		
-		private const OffsetBufferViewType _arrayOffsetTypeDefault = OffsetBufferViewType.UINT32;
-		private OffsetBufferViewType? _arrayOffsetType = _arrayOffsetTypeDefault;
+	//	private const OffsetBufferViewType _arrayOffsetTypeDefault = OffsetBufferViewType.UINT32;
+	//	private OffsetBufferViewType? _arrayOffsetType = _arrayOffsetTypeDefault;
 		
-		private Int32 _bufferView;
+	//	private Int32 _bufferView;
 		
-		private Int32? _stringOffsetBufferView;
+	//	private Int32? _stringOffsetBufferView;
 		
-		private const OffsetBufferViewType _stringOffsetTypeDefault = OffsetBufferViewType.UINT32;
-		private OffsetBufferViewType? _stringOffsetType = _stringOffsetTypeDefault;
+	//	private const OffsetBufferViewType _stringOffsetTypeDefault = OffsetBufferViewType.UINT32;
+	//	private OffsetBufferViewType? _stringOffsetType = _stringOffsetTypeDefault;
 		
 	
-		protected override void SerializeProperties(Utf8JsonWriter writer)
-		{
-			base.SerializeProperties(writer);
-			SerializeProperty(writer, "arrayOffsetBufferView", _arrayOffsetBufferView);
-			SerializePropertyEnumSymbol<OffsetBufferViewType>(writer, "arrayOffsetType", _arrayOffsetType, _arrayOffsetTypeDefault);
-			SerializeProperty(writer, "bufferView", _bufferView);
-			SerializeProperty(writer, "stringOffsetBufferView", _stringOffsetBufferView);
-			SerializePropertyEnumSymbol<OffsetBufferViewType>(writer, "stringOffsetType", _stringOffsetType, _stringOffsetTypeDefault);
-		}
+	//	protected override void SerializeProperties(Utf8JsonWriter writer)
+	//	{
+	//		base.SerializeProperties(writer);
+	//		SerializeProperty(writer, "arrayOffsetBufferView", _arrayOffsetBufferView);
+	//		SerializePropertyEnumSymbol<OffsetBufferViewType>(writer, "arrayOffsetType", _arrayOffsetType, _arrayOffsetTypeDefault);
+	//		SerializeProperty(writer, "bufferView", _bufferView);
+	//		SerializeProperty(writer, "stringOffsetBufferView", _stringOffsetBufferView);
+	//		SerializePropertyEnumSymbol<OffsetBufferViewType>(writer, "stringOffsetType", _stringOffsetType, _stringOffsetTypeDefault);
+	//	}
 	
-		protected override void DeserializeProperty(string jsonPropertyName, ref Utf8JsonReader reader)
-		{
-			switch (jsonPropertyName)
-			{
-				case "arrayOffsetBufferView": _arrayOffsetBufferView = DeserializePropertyValue<Int32?>(ref reader); break;
-				case "arrayOffsetType": _arrayOffsetType = DeserializePropertyValue<OffsetBufferViewType>(ref reader); break;
-				case "bufferView": _bufferView = DeserializePropertyValue<Int32>(ref reader); break;
-				case "stringOffsetBufferView": _stringOffsetBufferView = DeserializePropertyValue<Int32?>(ref reader); break;
-				case "stringOffsetType": _stringOffsetType = DeserializePropertyValue<OffsetBufferViewType>(ref reader); break;
-				default: base.DeserializeProperty(jsonPropertyName,ref reader); break;
-			}
-		}
+	//	protected override void DeserializeProperty(string jsonPropertyName, ref Utf8JsonReader reader)
+	//	{
+	//		switch (jsonPropertyName)
+	//		{
+	//			case "arrayOffsetBufferView": _arrayOffsetBufferView = DeserializePropertyValue<Int32?>(ref reader); break;
+	//			case "arrayOffsetType": _arrayOffsetType = DeserializePropertyValue<OffsetBufferViewType>(ref reader); break;
+	//			case "bufferView": _bufferView = DeserializePropertyValue<Int32>(ref reader); break;
+	//			case "stringOffsetBufferView": _stringOffsetBufferView = DeserializePropertyValue<Int32?>(ref reader); break;
+	//			case "stringOffsetType": _stringOffsetType = DeserializePropertyValue<OffsetBufferViewType>(ref reader); break;
+	//			default: base.DeserializeProperty(jsonPropertyName,ref reader); break;
+	//		}
+	//	}
 	
-	}
+	//}
 
 	/// <summary>
 	/// Features conforming to a class, organized as property values stored in columnar arrays.
 	/// </summary>
-	partial class PropertyTable : ExtraProperties
-	{
+	//partial class PropertyTable : ExtraProperties
+	//{
 	
-		private String _class;
+	//	private String _class;
 		
-		private const Int32 _countMinimum = 1;
-		private Int32 _count;
+	//	private const Int32 _countMinimum = 1;
+	//	private Int32 _count;
 		
-		private String _name;
+	//	private String _name;
 		
-		private Dictionary<String,PropertyTableProperty> _properties;
+	//	private Dictionary<String,PropertyTableProperty> _properties;
 		
 	
-		protected override void SerializeProperties(Utf8JsonWriter writer)
-		{
-			base.SerializeProperties(writer);
-			SerializeProperty(writer, "class", _class);
-			SerializeProperty(writer, "count", _count);
-			SerializeProperty(writer, "name", _name);
-			SerializeProperty(writer, "properties", _properties);
-		}
+	//	protected override void SerializeProperties(Utf8JsonWriter writer)
+	//	{
+	//		base.SerializeProperties(writer);
+	//		SerializeProperty(writer, "class", _class);
+	//		SerializeProperty(writer, "count", _count);
+	//		SerializeProperty(writer, "name", _name);
+	//		SerializeProperty(writer, "properties", _properties);
+	//	}
 	
-		protected override void DeserializeProperty(string jsonPropertyName, ref Utf8JsonReader reader)
-		{
-			switch (jsonPropertyName)
-			{
-				case "class": _class = DeserializePropertyValue<String>(ref reader); break;
-				case "count": _count = DeserializePropertyValue<Int32>(ref reader); break;
-				case "name": _name = DeserializePropertyValue<String>(ref reader); break;
-				case "properties": DeserializePropertyDictionary<PropertyTableProperty>(ref reader, _properties); break;
-				default: base.DeserializeProperty(jsonPropertyName,ref reader); break;
-			}
-		}
+	//	protected override void DeserializeProperty(string jsonPropertyName, ref Utf8JsonReader reader)
+	//	{
+	//		switch (jsonPropertyName)
+	//		{
+	//			case "class": _class = DeserializePropertyValue<String>(ref reader); break;
+	//			case "count": _count = DeserializePropertyValue<Int32>(ref reader); break;
+	//			case "name": _name = DeserializePropertyValue<String>(ref reader); break;
+	//			case "properties": DeserializePropertyDictionary<PropertyTableProperty>(ref reader, _properties); break;
+	//			default: base.DeserializeProperty(jsonPropertyName,ref reader); break;
+	//		}
+	//	}
 	
-	}
+	//}
 
 	/// <summary>
 	/// Features conforming to a class, organized as property values stored in texture channels.
