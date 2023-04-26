@@ -1,3 +1,10 @@
+# Introduction
+
+There are two Cesium glTF extensions involved in storing the attributes:
+
+- Ext_Mesh_features
+_ Ext_structural_metadata
+
 # EXT_Mesh_Features branch
 
 Specs: https://github.com/CesiumGS/glTF/blob/proposal-EXT_mesh_features/extensions/2.0/Vendor/EXT_mesh_features/README.md
@@ -93,4 +100,43 @@ model.UseExtension<EXT_mesh_featuresglTFMeshPrimitiveextension>();
 model.UseExtension<EXT_mesh_featuresglTFPrimitiveextension>();
 ```
 
-Current issue: Runtime exception on UseExtension second extension
+Set feature Ids:
+
+```
+model.LogicalMeshes[0].Primitives[0].SetFeatureIds(featureIds);
+```
+
+There is an issue with Dictionaries, sometimes an empty dictionary must be initialized in the constructor
+
+# Ext_structual_metadata
+
+Specs see:
+
+https://github.com/CesiumGS/glTF/tree/3d-tiles-next/extensions/2.0/Vendor/EXT_structural_metadata
+
+1] Register extension in gltf.ExtensionsFactory.cs:
+
+```
+RegisterExtension<ModelRoot, EXTStructuralMetaData>("EXT_structural_metadata");
+```
+
+2] Use extension
+
+```
+var ext = UseExtension<EXTStructuralMetaData>();
+```
+
+Remarks:
+
+- There are some classes defined in EXT_MESH_Features and EXT_STRUCTURAL_METADATA:
+
+```
+IntegerType
+PropertyTable
+PropertyTableProperty
+PropertyTexture
+```
+
+For now these types are commented out.
+
+- There is an issue with (de) serializing type 'object', for example in Classproperty - nodata. For now these properties are not used in the samples. 
