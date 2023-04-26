@@ -45,25 +45,15 @@ namespace SharpGLTF.Scenes
 
             var model = scene.ToGltf2();
 
-            var featureId = new FeatureID(2, 0, 0);
-            var featureIds = new List<FeatureID>() { featureId };
-            model.LogicalMeshes[0].Primitives[0].SetFeatureIds(featureIds);
-
             var values = new List<uint>() { 1000, 1001 };
-            var dstData = new Byte[values.Count * 4];
-            var dstArray = new Memory.IntegerArray(dstData, IndexEncodingType.UNSIGNED_INT);
-            for (int i = 0; i < values.Count; ++i) { dstArray[i] = values[i]; }
 
-            var bview = model.UseBufferView(dstData);
-            var index = bview.LogicalIndex;
-
-            // add the schema
-            model.AddSchema(index);
+            // todo: add method to add list of string
+            model.AddStructuralMetadata("objectid1", values);
 
             var ctx = new ValidationResult(model, ValidationMode.Strict, true);
             model.ValidateContent(ctx.GetContext());
 
-            model.SaveGLB(@"d:\aaa\testhtml\test36.glb");
+            model.SaveGLB(@"d:\aaa\testhtml\test37.glb");
             //scene.AttachToCurrentTest("cesium_ext_structural_metadata_triangle.glb");
             //scene.AttachToCurrentTest("cesium_ext_structural_metadata_triangle.gltf");
             //scene.AttachToCurrentTest("cesium_ext_structural_metadata_triangle.plotly");

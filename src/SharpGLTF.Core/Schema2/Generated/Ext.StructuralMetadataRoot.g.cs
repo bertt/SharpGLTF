@@ -341,7 +341,7 @@ namespace SharpGLTF.Schema2
 	partial class PropertyTableProperty : ExtraProperties
 	{
 	
-		private const StringOffsets _arrayOffsetTypeDefault = StringOffsets.UINT32;
+		private const StringOffsets _arrayOffsetTypeDefault = Schema2.StringOffsets.UINT32;
 		private StringOffsets? _arrayOffsetType = _arrayOffsetTypeDefault;
 		
 		private Int32? _arrayOffsets;
@@ -354,7 +354,7 @@ namespace SharpGLTF.Schema2
 		
 		private Object _scale;
 		
-		private const StringOffsets _stringOffsetTypeDefault = StringOffsets.UINT32;
+		private const StringOffsets _stringOffsetTypeDefault = Schema2.StringOffsets.UINT32;
 		private StringOffsets? _stringOffsetType = _stringOffsetTypeDefault;
 		
 		private Int32? _stringOffsets;

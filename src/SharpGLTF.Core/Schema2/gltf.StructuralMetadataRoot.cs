@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace SharpGLTF.Schema2
 {
@@ -115,7 +114,7 @@ namespace SharpGLTF.Schema2
             }
         }
 
-        public Int32? StringOffsets1
+        public Int32? StringOffsets
         {
             get { return _stringOffsets; }
             set { _stringOffsets = value; }
@@ -180,7 +179,7 @@ namespace SharpGLTF.Schema2
 
     partial class ModelRoot
     {
-        private PropertyTable GetPropertyTable(int AccessorId)
+        private PropertyTable GetPropertyTable(string Fieldname, int AccessorId)
         {
             var propertyTable = new PropertyTable();
             propertyTable.Name = "propertyTable name";
@@ -191,7 +190,7 @@ namespace SharpGLTF.Schema2
             var properties = new Dictionary<String, PropertyTableProperty>();
             //var bgtType = new PropertyTableProperty();
             //bgtType.StringOffsetType = StringOffsets.UINT32;
-            //bgtType.StringOffsets1 = 3;
+            //bgtType.StringOffsets = 3;
             //bgtType.Values = 2;
             //properties.Add("bgt_type", bgtType);
 
@@ -203,15 +202,40 @@ namespace SharpGLTF.Schema2
 
             var objectId = new PropertyTableProperty();
             objectId.Values = AccessorId;
-            properties.Add("objectid", objectId);
+            properties.Add(Fieldname, objectId);
 
             propertyTable.Properties = properties;
             return propertyTable;
         }
 
-
-        public void AddSchema(int accessorId)
+        private byte[] GetIntsAsBytes(List<uint> values)
         {
+            var dstData = new Byte[values.Count * 4];
+            var dstArray = new Memory.IntegerArray(dstData, IndexEncodingType.UNSIGNED_INT);
+            for (int i = 0; i < values.Count; ++i) { dstArray[i] = values[i]; }
+            return dstData;
+        }
+
+
+        public void AddStructuralMetadata(string fieldname, List<uint> values)
+        {
+            var bytes = GetIntsAsBytes(values);
+            var elementType = ElementType.SCALAR;
+            var componentType = DataType.INT32;
+
+            AddStructuralMetadata(fieldname, bytes, elementType, componentType);
+        }
+
+        private void AddStructuralMetadata(string fieldname, byte[] bytes, ElementType elementType, DataType componentType)
+        {
+            var featureId = new FeatureID(2, 0, 0);
+            var featureIds = new List<FeatureID>() { featureId };
+            // todo fix when there are multiple MeshPrimitives
+            LogicalMeshes[0].Primitives[0].SetFeatureIds(featureIds);
+
+            var bview = UseBufferView(bytes);
+            var index = bview.LogicalIndex;
+
             var ext = UseExtension<EXTStructuralMetaData>();
 
             var structuralMetadataSchema = new StructuralMetadataSchema();
@@ -221,10 +245,10 @@ namespace SharpGLTF.Schema2
             var properties1 = new Dictionary<String, ClassProperty>();
 
             var p2 = new ClassProperty();
-            p2.Type = ElementType.SCALAR;
-            p2.ComponentType = DataType.INT32;
+            p2.Type = elementType;
+            p2.ComponentType = componentType;
             // p2.NoData = 2147483647;
-            properties1.Add("objectid", p2);
+            properties1.Add(fieldname, p2);
 
             structuralMetadataClass.Properties = properties1;
             ext.Schema = structuralMetadataSchema;
@@ -234,8 +258,7 @@ namespace SharpGLTF.Schema2
             { "terrain", structuralMetadataClass }
             };
 
-            ext.PropertyTables = new List<PropertyTable>() { GetPropertyTable(accessorId) };
-
+            ext.PropertyTables = new List<PropertyTable>() { GetPropertyTable(fieldname, index) };
         }
     }
 }
