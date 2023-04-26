@@ -10,10 +10,7 @@ using SharpGLTF.Geometry;
 using SharpGLTF.Geometry.VertexTypes;
 using SharpGLTF.Geometry.Parametric;
 using SharpGLTF.Materials;
-using System.Diagnostics;
-using System.Collections.ObjectModel;
 using SharpGLTF.Validation;
-using Newtonsoft.Json.Linq;
 
 namespace SharpGLTF.Scenes
 {
@@ -23,58 +20,9 @@ namespace SharpGLTF.Scenes
     using SKINNEDVERTEX8 = VertexBuilder<VertexPosition, VertexEmpty, VertexJoints8>;
 
 
-
-
-
     [Category("Toolkit.Scenes")]
     public partial class SceneBuilderTests
     {
-
-        [Test(Description = "Creates a simple triangle with Cesium FeatureIds")]
-        public void CreateCesiumFeatureIdsTriangleScene()
-        {
-            TestContext.CurrentContext.AttachGltfValidatorLinks();
-
-            var material = MaterialBuilder.CreateDefault();
-
-            var mesh = new MeshBuilder<VertexPosition>("mesh");
-
-            var prim = mesh.UsePrimitive(material);
-            prim.AddTriangle(new VertexPosition(-10, 0, 0), new VertexPosition(10, 0, 0), new VertexPosition(0, 10, 0));
-
-            var scene = new SceneBuilder();
-
-            scene.AddRigidMesh(mesh, Matrix4x4.Identity);
-
-            var model = scene.ToGltf2();
-
-            var featureId = new FeatureID(2, 0, 0);
-            var featureIds = new List<FeatureID>() { featureId };
-            model.LogicalMeshes[0].Primitives[0].SetFeatureIds(featureIds);
-
-            var cesiumFeatureIdExtension = (MeshExtMeshFeatures) model.LogicalMeshes[0].Primitives[0].Extensions.FirstOrDefault();
-            Assert.NotNull(cesiumFeatureIdExtension.FeatureIds);
-            CollectionAssert.AreEqual(featureIds, cesiumFeatureIdExtension.FeatureIds);
-
-            var ctx = new ValidationResult(model, ValidationMode.Strict, true);
-            model.ValidateContent(ctx.GetContext());
-
-            model.SaveGLB(@"d:\aaa\test34.glb");
-
-            scene.AttachToCurrentTest("cesium_outline_triangle.glb");
-            scene.AttachToCurrentTest("cesium_outline_triangle.gltf");
-            scene.AttachToCurrentTest("cesium_outline_triangle.plotly");
-        }
-
-
-
-
-        public Vector3 GetNormal((Vector3, Vector3, Vector3) vectors)
-        {
-            // todo: improve this formula
-            return Vector3.UnitX;
-        }
-
         [Test(Description = "Creates a simple triangle with Cesium EXT_Structural_metadata")]
         public void CreateCesiumWithStructualMetadataAndExtMeshFeaturesTriangleScene()
         {
@@ -86,10 +34,10 @@ namespace SharpGLTF.Scenes
 
             var prim = mesh.UsePrimitive(material);
             var vectors = (new Vector3(-10, 0, 0), new Vector3(10, 0, 0), new Vector3(0, 10, 0));
-            prim.AddTriangleWithBatchId(vectors, GetNormal(vectors), 0);
+            prim.AddTriangleWithBatchId(vectors, Vector3.UnitX, 0);
 
             var vectors1 = (new Vector3(10, -10, 0), new Vector3(-10, 0, 0), new Vector3(0, -10, 0));
-            prim.AddTriangleWithBatchId(vectors1, GetNormal(vectors), 1);
+            prim.AddTriangleWithBatchId(vectors1, Vector3.UnitX, 1);
 
             var scene = new SceneBuilder();
 
@@ -101,14 +49,10 @@ namespace SharpGLTF.Scenes
             var featureIds = new List<FeatureID>() { featureId };
             model.LogicalMeshes[0].Primitives[0].SetFeatureIds(featureIds);
 
-            // create accessor
             var values = new List<uint>() { 1000, 1001 };
-
             var dstData = new Byte[values.Count * 4];
             var dstArray = new Memory.IntegerArray(dstData, IndexEncodingType.UNSIGNED_INT);
             for (int i = 0; i < values.Count; ++i) { dstArray[i] = values[i]; }
-
-            //var accessor = model.CreateAccessor("TestAccessor");
 
             var bview = model.UseBufferView(dstData);
             var index = bview.LogicalIndex;
@@ -119,8 +63,7 @@ namespace SharpGLTF.Scenes
             var ctx = new ValidationResult(model, ValidationMode.Strict, true);
             model.ValidateContent(ctx.GetContext());
 
-            // following line fails on deepclone
-            model.SaveGLB(@"d:\aaa\test36.glb");
+            model.SaveGLB(@"d:\aaa\testhtml\test36.glb");
             //scene.AttachToCurrentTest("cesium_ext_structural_metadata_triangle.glb");
             //scene.AttachToCurrentTest("cesium_ext_structural_metadata_triangle.gltf");
             //scene.AttachToCurrentTest("cesium_ext_structural_metadata_triangle.plotly");

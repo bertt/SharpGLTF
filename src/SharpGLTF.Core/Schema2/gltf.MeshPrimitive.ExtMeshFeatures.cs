@@ -14,6 +14,10 @@ namespace SharpGLTF.Schema2
 
     public partial class MeshExtMeshFeatures
     {
+        public MeshExtMeshFeatures()
+        {
+        }
+
         private MeshPrimitive meshPrimitive;
         internal MeshExtMeshFeatures(MeshPrimitive meshPrimitive)
         {

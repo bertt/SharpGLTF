@@ -111,11 +111,6 @@ namespace SharpGLTF.Schema2
 		private const int _featureIdsMinItems = 1;
 		private List<FeatureID> _featureIds;
 
-		public MeshExtMeshFeatures()
-		{
-
-		}
-
         protected override void SerializeProperties(Utf8JsonWriter writer)
 		{
 			base.SerializeProperties(writer);
