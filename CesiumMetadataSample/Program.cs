@@ -38,8 +38,8 @@ namespace CesiumMetadataSample
             var names = new List<string>() { "first", "second", "third" };
 
             // todo: add method to add list of string
-            model.AddStructuralMetadata("objectid1", values);
-            // model.AddStructuralMetadataStrings("objectid1", names);
+            // model.AddStructuralMetadata("objectid1", values);
+            model.AddStructuralMetadataStrings("objectid1", names);
 
             model.SaveGLB(@"d:\aaa\testhtml\test37.glb");
 
