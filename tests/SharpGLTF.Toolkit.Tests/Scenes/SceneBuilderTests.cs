@@ -11,6 +11,7 @@ using SharpGLTF.Geometry.VertexTypes;
 using SharpGLTF.Geometry.Parametric;
 using SharpGLTF.Materials;
 using SharpGLTF.Validation;
+using System.IO;
 
 namespace SharpGLTF.Scenes
 {
@@ -28,35 +29,6 @@ namespace SharpGLTF.Scenes
         {
             TestContext.CurrentContext.AttachGltfValidatorLinks();
 
-            var material = MaterialBuilder.CreateDefault();
-
-            var mesh = new MeshBuilder<VertexPositionNormal, VertexWithBatchId, VertexEmpty>("mesh");
-
-            var prim = mesh.UsePrimitive(material);
-            var vectors = (new Vector3(-10, 0, 0), new Vector3(10, 0, 0), new Vector3(0, 10, 0));
-            prim.AddTriangleWithBatchId(vectors, Vector3.UnitX, 0);
-
-            var vectors1 = (new Vector3(10, -10, 0), new Vector3(-10, 0, 0), new Vector3(0, -10, 0));
-            prim.AddTriangleWithBatchId(vectors1, Vector3.UnitX, 1);
-
-            var scene = new SceneBuilder();
-
-            scene.AddRigidMesh(mesh, Matrix4x4.Identity);
-
-            var model = scene.ToGltf2();
-
-            var values = new List<uint>() { 1000, 1001 };
-
-            // todo: add method to add list of string
-            model.AddStructuralMetadata("objectid1", values);
-
-            var ctx = new ValidationResult(model, ValidationMode.Strict, true);
-            model.ValidateContent(ctx.GetContext());
-
-            model.SaveGLB(@"d:\aaa\testhtml\test37.glb");
-            //scene.AttachToCurrentTest("cesium_ext_structural_metadata_triangle.glb");
-            //scene.AttachToCurrentTest("cesium_ext_structural_metadata_triangle.gltf");
-            //scene.AttachToCurrentTest("cesium_ext_structural_metadata_triangle.plotly");
         }
 
 

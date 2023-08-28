@@ -179,56 +179,44 @@ namespace SharpGLTF.Schema2
 
     partial class ModelRoot
     {
-        private PropertyTable GetPropertyTable(string Fieldname, int AccessorId)
+        private PropertyTable GetPropertyTable(string PropertyTableName, string Fieldname, int AccessorId, int numberOfFeatures)
         {
             var propertyTable = new PropertyTable();
-            propertyTable.Name = "propertyTable name";
-            propertyTable.Count = 2;
-            propertyTable.Class = "terrain";
-
+            propertyTable.Count = numberOfFeatures;
+            propertyTable.Class = PropertyTableName;
 
             var properties = new Dictionary<String, PropertyTableProperty>();
-            //var bgtType = new PropertyTableProperty();
-            //bgtType.StringOffsetType = StringOffsets.UINT32;
-            //bgtType.StringOffsets = 3;
-            //bgtType.Values = 2;
-            //properties.Add("bgt_type", bgtType);
-
-            //var bronhouder = new PropertyTableProperty();
-            //bronhouder.StringOffsetType = StringOffsets.UINT32;
-            //bronhouder.StringOffsets1 = 5;
-            //bronhouder.Values = 4;
-            //properties.Add("bronhouder", bronhouder);
-
             var objectId = new PropertyTableProperty();
+            //objectId.StringOffsetType= StringOffsets.UINT32;
+            //objectId.StringOffsets = numberOfFeatures + 1;
             objectId.Values = AccessorId;
+            // objectId.
             properties.Add(Fieldname, objectId);
 
             propertyTable.Properties = properties;
             return propertyTable;
         }
 
-        private byte[] GetIntsAsBytes(List<uint> values)
+        public void AddStructuralMetadataStrings(string fieldname, List<string> values)
         {
-            var dstData = new Byte[values.Count * 4];
-            var dstArray = new Memory.IntegerArray(dstData, IndexEncodingType.UNSIGNED_INT);
-            for (int i = 0; i < values.Count; ++i) { dstArray[i] = values[i]; }
-            return dstData;
-        }
+            var bytes = BinaryTable.GetStringAsBytesWithOffsetBuffer(values);
+            var componentType = DataType.INT32;
+            // var componentType = DataType.INT32;
 
+            AddStructuralMetadata(fieldname, bytes, componentType, values.Count);
+        }
 
         public void AddStructuralMetadata(string fieldname, List<uint> values)
         {
-            var bytes = GetIntsAsBytes(values);
-            var elementType = ElementType.SCALAR;
+            var bytes = BinaryTable.GetIntsAsBytes(values);
             var componentType = DataType.INT32;
-
-            AddStructuralMetadata(fieldname, bytes, elementType, componentType);
+            AddStructuralMetadata(fieldname, bytes, componentType, values.Count);
         }
 
-        private void AddStructuralMetadata(string fieldname, byte[] bytes, ElementType elementType, DataType componentType)
+        private void AddStructuralMetadata(string fieldname, byte[] bytes, DataType componentType, int numberOfFeatures)
         {
-            var featureId = new FeatureID(2, 0, 0);
+            var propertyTableName = "propertyTable";
+            var featureId = new FeatureID(numberOfFeatures, 0, 0);
             var featureIds = new List<FeatureID>() { featureId };
             // todo fix when there are multiple MeshPrimitives
             LogicalMeshes[0].Primitives[0].SetFeatureIds(featureIds);
@@ -240,25 +228,23 @@ namespace SharpGLTF.Schema2
 
             var structuralMetadataSchema = new StructuralMetadataSchema();
             var structuralMetadataClass = new StructuralMetadataClass();
-            structuralMetadataClass.Name = "terrain";
-            structuralMetadataClass.Description = "class description";
-            var properties1 = new Dictionary<String, ClassProperty>();
+            var properties = new Dictionary<string, ClassProperty>();
 
             var p2 = new ClassProperty();
-            p2.Type = elementType;
             p2.ComponentType = componentType;
-            // p2.NoData = 2147483647;
-            properties1.Add(fieldname, p2);
 
-            structuralMetadataClass.Properties = properties1;
+            // p2.Type = ElementType.STRING;
+            properties.Add(fieldname, p2);
+
+            structuralMetadataClass.Properties = properties;
             ext.Schema = structuralMetadataSchema;
 
             structuralMetadataSchema.Classes = new Dictionary<string, StructuralMetadataClass>
             {
-            { "terrain", structuralMetadataClass }
+            { propertyTableName , structuralMetadataClass }
             };
 
-            ext.PropertyTables = new List<PropertyTable>() { GetPropertyTable(fieldname, index) };
+            ext.PropertyTables = new List<PropertyTable>() { GetPropertyTable(propertyTableName, fieldname, index, numberOfFeatures) };
         }
     }
 }
