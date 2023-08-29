@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel.Design;
-using System.Diagnostics;
 
 namespace SharpGLTF.Schema2
 {
@@ -83,19 +81,6 @@ namespace SharpGLTF.Schema2
                 _properties = value;
             }
         }
-
-
-        public string Name
-        {
-            get
-            {
-                return _name;
-            }
-            set
-            {
-                _name = value;
-            }
-        }
     }
 
     partial class PropertyTableProperty
@@ -137,18 +122,6 @@ namespace SharpGLTF.Schema2
             Properties = new Dictionary<string, ClassProperty>();
         }
 
-        public string Description
-        {
-            get { return _description; }
-            set { _description = value; }
-        }
-
-        public string Name
-        {
-            get { return _name; }
-            set { _name = value; }
-        }
-
         public Dictionary<String, ClassProperty> Properties
         {
             get { return _properties; }
@@ -164,12 +137,6 @@ namespace SharpGLTF.Schema2
             set { _type = value; }
         }
 
-        public Object NoData
-        {
-            get { return _noData; }
-            set { _noData = value; }
-        }
-
         public DataType? ComponentType
         {
             get { return _componentType; }
@@ -181,28 +148,35 @@ namespace SharpGLTF.Schema2
 
     partial class ModelRoot
     {
-        public void AddMetadataStrings(string fieldname, IReadOnlyList<string> values)
+        public void AddMetadataStrings(EXTStructuralMetaData ext, string fieldname, IReadOnlyList<string> values)
         {
             var offSetbytes = BinaryTable.GetOffsetBuffer(values);
             var stringBytes = BinaryTable.GetStringsAsBytes(values);
 
-            var propertyTableName = "propertyTable";
-            AddStructuralMetadata(propertyTableName,fieldname, stringBytes, values.Count, offSetbytes);
+            var propertyTableName = ext.PropertyTables[0].Class;
+            AddStructuralMetadata(this, ext, propertyTableName, fieldname, stringBytes, offSetbytes);
         }
 
-        public void AddMetadataInts(string fieldname, List<uint> values)
+        public void AddMetadataInts(EXTStructuralMetaData ext, string fieldname, List<uint> values)
         {
             var bytes = BinaryTable.GetIntsAsBytes(values);
-            var propertyTableName = "propertyTable";
-            AddStructuralMetadata(propertyTableName, fieldname, bytes, values.Count);
+            var propertyTableName = ext.PropertyTables[0].Class;
+
+            AddStructuralMetadata(this, ext, propertyTableName, fieldname, bytes);
         }
 
-        private void AddStructuralMetadata(string propertyTableName, string fieldname, byte[] bytes, int numberOfFeatures, byte[] offsetBytes = null)
+        private static void AddStructuralMetadata(ModelRoot modelRoot, EXTStructuralMetaData ext, string propertyTableName, string fieldname, byte[] bytes, byte[] offsetBytes = null)
         {
-            var ext = InitializeMetadataExtension(propertyTableName, numberOfFeatures);
-            AddStringFieldToSchema(ext, propertyTableName, fieldname);
+            if (offsetBytes != null)
+            {
+                AddStringFieldToSchema(ext, propertyTableName, fieldname);
+            }
+            else
+            {
+                AddInt32FieldToSchema(ext, propertyTableName, fieldname);
+            }
 
-            var propertyTableProperty = GetPropertyTableProperty(this, bytes, offsetBytes);
+            var propertyTableProperty = GetPropertyTableProperty(modelRoot, bytes, offsetBytes);
             ext.PropertyTables[0].Properties.Add(fieldname, propertyTableProperty);
         }
 

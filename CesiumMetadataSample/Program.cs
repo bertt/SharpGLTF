@@ -38,9 +38,9 @@ namespace CesiumMetadataSample
 
             var names = new List<string>() { "first777", "second777", "third777" };
 
-            // todo: add method to add list of string
-            // model.AddStructuralMetadata("objectid1", values);
-            model.AddMetadataStrings("objectid1", names);
+            var ext = model.InitializeMetadataExtension("propertyTable", names.Count);
+            model.AddMetadataStrings(ext, "objectid1", names);
+            model.AddMetadataInts(ext, "ids", values);
 
             model.SaveGLB(@"d:\aaa\testhtml\test37.glb");
 
