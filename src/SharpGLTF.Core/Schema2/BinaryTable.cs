@@ -7,14 +7,14 @@ namespace SharpGLTF.Schema2
 {
     public static class BinaryTable
     {
-        public static byte[] GetOffsetBuffer(List<string> strings)
+        public static byte[] GetOffsetBuffer(IReadOnlyList<string> strings)
         {
             List<uint> offsetBuffer = GetOffsets(strings);
             var offsetBytes = GetIntsAsBytes(offsetBuffer);
             return offsetBytes;
         }
 
-        public static byte[] GetIntsAsBytes(List<uint> values)
+        public static byte[] GetIntsAsBytes(IReadOnlyList<uint> values)
         {
             var dstData = new Byte[values.Count * 4];
             var dstArray = new Memory.IntegerArray(dstData, IndexEncodingType.UNSIGNED_INT);
@@ -23,7 +23,7 @@ namespace SharpGLTF.Schema2
         }
 
 
-        private static List<uint> GetOffsets(List<string> strings)
+        private static List<uint> GetOffsets(IReadOnlyList<string> strings)
         {
             var offsets = new List<uint>() { 0 };
             foreach (string s in strings)
@@ -35,7 +35,7 @@ namespace SharpGLTF.Schema2
             return offsets;
         }
 
-        public static byte[] GetStringsAsBytes(List<string> values)
+        public static byte[] GetStringsAsBytes(IReadOnlyList<string> values)
         {
             var res = String.Join("", values);
             return Encoding.UTF8.GetBytes(res);

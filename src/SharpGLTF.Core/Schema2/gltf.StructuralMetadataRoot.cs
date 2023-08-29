@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.Design;
+using System.Diagnostics;
 
 namespace SharpGLTF.Schema2
 {
@@ -44,7 +46,7 @@ namespace SharpGLTF.Schema2
     {
         public PropertyTable()
         {
-            Properties = new Dictionary<string, PropertyTableProperty> ();
+            Properties = new Dictionary<string, PropertyTableProperty>();
         }
         public string Class
         {
@@ -179,92 +181,111 @@ namespace SharpGLTF.Schema2
 
     partial class ModelRoot
     {
-        private PropertyTable GetPropertyTable(string PropertyTableName, string Fieldname, int AccessorId, int numberOfFeatures, int? stringOffsets)
-        {
-            var propertyTable = new PropertyTable();
-            propertyTable.Count = numberOfFeatures;
-            propertyTable.Class = PropertyTableName;
-
-            var properties = new Dictionary<String, PropertyTableProperty>();
-            var objectId = new PropertyTableProperty();
-            if(stringOffsets != null)
-            {
-                objectId.StringOffsetType = StringOffsets.UINT32;
-                objectId.StringOffsets = stringOffsets;
-            }
-            objectId.Values = AccessorId;
-            properties.Add(Fieldname, objectId);
-
-            propertyTable.Properties = properties;
-            return propertyTable;
-        }
-
-        public void AddStructuralMetadataStrings(string fieldname, List<string> values)
+        public void AddMetadataStrings(string fieldname, IReadOnlyList<string> values)
         {
             var offSetbytes = BinaryTable.GetOffsetBuffer(values);
             var stringBytes = BinaryTable.GetStringsAsBytes(values);
 
-            AddStructuralMetadata(fieldname, stringBytes, values.Count, offSetbytes);
+            var propertyTableName = "propertyTable";
+            AddStructuralMetadata(propertyTableName,fieldname, stringBytes, values.Count, offSetbytes);
         }
 
-        public void AddStructuralMetadata(string fieldname, List<uint> values)
+        public void AddMetadataInts(string fieldname, List<uint> values)
         {
             var bytes = BinaryTable.GetIntsAsBytes(values);
-            AddStructuralMetadata(fieldname, bytes, values.Count);
+            var propertyTableName = "propertyTable";
+            AddStructuralMetadata(propertyTableName, fieldname, bytes, values.Count);
         }
 
-        private ClassProperty GetIntClassProperty()
+        private void AddStructuralMetadata(string propertyTableName, string fieldname, byte[] bytes, int numberOfFeatures, byte[] offsetBytes = null)
         {
-            var p2 = new ClassProperty();
-            p2.ComponentType = DataType.INT32;
-            return p2;
+            var ext = InitializeMetadataExtension(propertyTableName, numberOfFeatures);
+            AddStringFieldToSchema(ext, propertyTableName, fieldname);
+
+            var propertyTableProperty = GetPropertyTableProperty(this, bytes, offsetBytes);
+            ext.PropertyTables[0].Properties.Add(fieldname, propertyTableProperty);
         }
 
-        private ClassProperty GetStringClassProperty()
-        {
-            var p2 = new ClassProperty();
-            p2.Type = ElementType.STRING;
-            return p2;
-        }
-
-        private void AddStructuralMetadata(string fieldname, byte[] bytes,  int numberOfFeatures, byte[] offsetBytes=null)
+        private static PropertyTableProperty GetPropertyTableProperty(ModelRoot modelRoot, byte[] bytes, byte[] offsetBytes = null)
         {
             int? stringOffsets = null;
-            var isString = false;
+            var bview = modelRoot.UseBufferView(bytes);
+            var values = bview.LogicalIndex;
+
+            if (offsetBytes != null)
+            {
+                var bviewOffsets = modelRoot.UseBufferView(offsetBytes);
+                stringOffsets = bviewOffsets.LogicalIndex;
+            }
+            var propertyTableProperty = GetPropertyTableProperty(values, stringOffsets);
+            return propertyTableProperty;
+        }
+
+        private static void AddStringFieldToSchema(EXTStructuralMetaData ext, string PropertyTableName, string FieldName)
+        {
+            var classProperty = new ClassProperty();
+            classProperty.Type = ElementType.STRING;
+
+            ext.Schema.Classes[PropertyTableName].Properties.Add(FieldName, classProperty);
+        }
+
+        private static void AddInt32FieldToSchema(EXTStructuralMetaData ext, string PropertyTableName, string FieldName)
+        {
+            var classProperty = new ClassProperty();
+            classProperty.Type = ElementType.SCALAR;
+            classProperty.ComponentType = DataType.INT32;
+
+            ext.Schema.Classes[PropertyTableName].Properties.Add(FieldName, classProperty);
+        }
+
+
+        // Creates EXTStructuralMetaData with Schema and 1 PropertyTable
+        public EXTStructuralMetaData InitializeMetadataExtension(string propertyTableName, int numberOfFeatures)
+        {
             var featureId = new FeatureID(numberOfFeatures, 0, 0);
             var featureIds = new List<FeatureID>() { featureId };
             // todo fix when there are multiple MeshPrimitives
             LogicalMeshes[0].Primitives[0].SetFeatureIds(featureIds);
 
-            var bview = UseBufferView(bytes);
-            var values = bview.LogicalIndex;
-
-            if (offsetBytes != null)
-            {
-                isString = true;
-                var bviewOffsets = UseBufferView(offsetBytes);
-                stringOffsets = bviewOffsets.LogicalIndex;
-            }
-
             var ext = UseExtension<EXTStructuralMetaData>();
 
-            var propertyTableName = "propertyTable";
-            ext.Schema = GetSchema(propertyTableName,fieldname, isString);
-
-            var propertyTable = GetPropertyTable(propertyTableName, fieldname, values, numberOfFeatures, stringOffsets);
-
-            ext.PropertyTables = new List<PropertyTable>() { propertyTable};
+            var schema = GetInitialSchema(propertyTableName);
+            ext.Schema = schema;
+            var propertyTable = GetInitialPropertyTable(propertyTableName, numberOfFeatures);
+            ext.PropertyTables = new List<PropertyTable>() { propertyTable };
+            return ext;
         }
 
-        private StructuralMetadataSchema GetSchema(string schemaName, string fieldname, bool IsString = false)
+        // Create a propertyTableProperty with values and stringOffsets
+        private static PropertyTableProperty GetPropertyTableProperty(int AccessorId, int? stringOffsets)
+        {
+            var objectId = new PropertyTableProperty();
+            if (stringOffsets != null)
+            {
+                objectId.StringOffsetType = StringOffsets.UINT32;
+                objectId.StringOffsets = stringOffsets;
+            }
+            objectId.Values = AccessorId;
+            return objectId;
+        }
+
+        // Get empty PropertyTable
+        private static PropertyTable GetInitialPropertyTable(string PropertyTableName, int numberOfFeatures)
+        {
+            var propertyTable = new PropertyTable();
+            propertyTable.Count = numberOfFeatures;
+            propertyTable.Class = PropertyTableName;
+            var properties = new Dictionary<string, PropertyTableProperty>();
+            propertyTable.Properties = properties;
+            return propertyTable;
+        }
+
+        // Get MetadataSchame with 1 metadata class
+        private static StructuralMetadataSchema GetInitialSchema(string schemaName)
         {
             var structuralMetadataSchema = new StructuralMetadataSchema();
             var structuralMetadataClass = new StructuralMetadataClass();
             var classProperties = new Dictionary<string, ClassProperty>();
-
-            var classProperty = IsString?GetStringClassProperty(): GetIntClassProperty();
-            classProperties.Add(fieldname, classProperty);
-
             structuralMetadataClass.Properties = classProperties;
             structuralMetadataSchema.Classes = new Dictionary<string, StructuralMetadataClass>
             {

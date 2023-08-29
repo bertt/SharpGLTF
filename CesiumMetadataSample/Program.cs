@@ -3,6 +3,7 @@ using SharpGLTF.Geometry.VertexTypes;
 using SharpGLTF.Materials;
 using SharpGLTF.Scenes;
 using SharpGLTF.Schema2;
+using System.Data;
 using System.Numerics;
 
 namespace CesiumMetadataSample
@@ -35,11 +36,11 @@ namespace CesiumMetadataSample
 
             var values = new List<uint>() { 1000, 1001, 1002 };
 
-            var names = new List<string>() { "first", "second", "third" };
+            var names = new List<string>() { "first777", "second777", "third777" };
 
             // todo: add method to add list of string
             // model.AddStructuralMetadata("objectid1", values);
-            model.AddStructuralMetadataStrings("objectid1", names);
+            model.AddMetadataStrings("objectid1", names);
 
             model.SaveGLB(@"d:\aaa\testhtml\test37.glb");
 
