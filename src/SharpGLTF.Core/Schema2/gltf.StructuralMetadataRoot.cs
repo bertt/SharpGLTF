@@ -1,15 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace SharpGLTF.Schema2
 {
-
     public partial class EXTStructuralMetaData
     {
-        private ModelRoot modelRoot;
         internal EXTStructuralMetaData(ModelRoot modelRoot)
         {
-            this.modelRoot = modelRoot;
             PropertyTables = new List<PropertyTable>();
         }
 
@@ -148,34 +146,33 @@ namespace SharpGLTF.Schema2
 
     partial class ModelRoot
     {
-        public void AddMetadataStrings(EXTStructuralMetaData ext, string fieldname, IReadOnlyList<string> values)
+        public void AddMetadata<T>(EXTStructuralMetaData ext, string fieldname, List<T> values)
         {
-            var offSetbytes = BinaryTable.GetOffsetBuffer(values);
-            var stringBytes = BinaryTable.GetStringsAsBytes(values);
-
-            var propertyTableName = ext.PropertyTables[0].Class;
-            AddStructuralMetadata(this, ext, propertyTableName, fieldname, stringBytes, offSetbytes);
-        }
-
-        public void AddMetadataInts(EXTStructuralMetaData ext, string fieldname, List<uint> values)
-        {
-            var bytes = BinaryTable.GetIntsAsBytes(values);
             var propertyTableName = ext.PropertyTables[0].Class;
 
-            AddStructuralMetadata(this, ext, propertyTableName, fieldname, bytes);
-        }
-
-        private static void AddStructuralMetadata(ModelRoot modelRoot, EXTStructuralMetaData ext, string propertyTableName, string fieldname, byte[] bytes, byte[] offsetBytes = null)
-        {
-            if (offsetBytes != null)
+            var type = typeof(T);
+            if (type == typeof(float) || type == typeof(uint) || type == typeof(int))
             {
-                AddStringFieldToSchema(ext, propertyTableName, fieldname);
+                var bytes = BinaryTable.GetBytes(values);
+                AddStructuralMetadata<T>(this, ext, propertyTableName, fieldname, bytes);
+            }
+            else if (type == typeof(string))
+            {
+                var strings = values.Select(x => x.ToString()).ToList();
+                var offSetbytes = BinaryTable.GetOffsetBuffer(strings);
+                var stringBytes = BinaryTable.GetStringsAsBytes(strings);
+
+                AddStructuralMetadata<string>(this, ext, propertyTableName, fieldname, stringBytes, offSetbytes);
             }
             else
             {
-                AddInt32FieldToSchema(ext, propertyTableName, fieldname);
+                throw new NotImplementedException();
             }
+        }
 
+        private static void AddStructuralMetadata<T>(ModelRoot modelRoot, EXTStructuralMetaData ext, string propertyTableName, string fieldname, byte[] bytes, byte[] offsetBytes = null)
+        {
+            AddFieldToSchema<T>(ext, propertyTableName, fieldname);
             var propertyTableProperty = GetPropertyTableProperty(modelRoot, bytes, offsetBytes);
             ext.PropertyTables[0].Properties.Add(fieldname, propertyTableProperty);
         }
@@ -195,23 +192,38 @@ namespace SharpGLTF.Schema2
             return propertyTableProperty;
         }
 
-        private static void AddStringFieldToSchema(EXTStructuralMetaData ext, string PropertyTableName, string FieldName)
+        private static void AddFieldToSchema<T>(EXTStructuralMetaData ext, string PropertyTableName, string FieldName)
         {
+            var type = typeof(T);
+
             var classProperty = new ClassProperty();
-            classProperty.Type = ElementType.STRING;
+
+            if (type == typeof(string))
+            {
+                classProperty.Type = ElementType.STRING;
+            }
+            else if (type == typeof(uint))
+            {
+                classProperty.Type = ElementType.SCALAR;
+                classProperty.ComponentType = DataType.UINT32;
+            }
+            else if (type == typeof(int))
+            {
+                classProperty.Type = ElementType.SCALAR;
+                classProperty.ComponentType = DataType.INT32;
+            }
+            else if (type == typeof(float))
+            {
+                classProperty.Type = ElementType.SCALAR;
+                classProperty.ComponentType = DataType.FLOAT32;
+            }
+            else if (type == typeof(Boolean))
+            {
+                classProperty.Type = ElementType.BOOLEAN;
+            }
 
             ext.Schema.Classes[PropertyTableName].Properties.Add(FieldName, classProperty);
         }
-
-        private static void AddInt32FieldToSchema(EXTStructuralMetaData ext, string PropertyTableName, string FieldName)
-        {
-            var classProperty = new ClassProperty();
-            classProperty.Type = ElementType.SCALAR;
-            classProperty.ComponentType = DataType.INT32;
-
-            ext.Schema.Classes[PropertyTableName].Properties.Add(FieldName, classProperty);
-        }
-
 
         // Creates EXTStructuralMetaData with Schema and 1 PropertyTable
         public EXTStructuralMetaData InitializeMetadataExtension(string propertyTableName, int numberOfFeatures)

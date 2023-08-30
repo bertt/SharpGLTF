@@ -3,7 +3,6 @@ using SharpGLTF.Geometry.VertexTypes;
 using SharpGLTF.Materials;
 using SharpGLTF.Scenes;
 using SharpGLTF.Schema2;
-using System.Data;
 using System.Numerics;
 
 namespace CesiumMetadataSample
@@ -34,15 +33,19 @@ namespace CesiumMetadataSample
 
             var model = scene.ToGltf2();
 
-            var values = new List<uint>() { 1000, 1001, 1002 };
-
+            var uints = new List<int>() { 1000, 1001, 1002 };
+            var ints = new List<int>() { -1000, -1001, -1002 };
             var names = new List<string>() { "first777", "second777", "third777" };
+            var floats = new List<float>() { 1.1000000f, 1.200000f, 1.300000f };
 
             var ext = model.InitializeMetadataExtension("propertyTable", names.Count);
-            model.AddMetadataStrings(ext, "objectid1", names);
-            model.AddMetadataInts(ext, "ids", values);
+            model.AddMetadata(ext, "objectid1", names);
+            model.AddMetadata(ext, "ints", ints);
+            model.AddMetadata(ext, "floats", floats);
+            model.AddMetadata(ext, "uints", uints);
 
-            model.SaveGLB(@"d:\aaa\testhtml\test37.glb");
+
+             model.SaveGLB(@"d:\aaa\testhtml\test37.glb");
 
             var readSettings = new ReadSettings();
             readSettings.Validation = SharpGLTF.Validation.ValidationMode.TryFix;
