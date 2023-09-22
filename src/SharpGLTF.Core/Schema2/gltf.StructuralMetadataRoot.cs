@@ -159,10 +159,12 @@ namespace SharpGLTF.Schema2
             else if (type == typeof(string))
             {
                 var strings = values.Select(x => x.ToString()).ToList();
-                var offSetbytes = BinaryTable.GetOffsetBuffer(strings);
                 var stringBytes = BinaryTable.GetStringsAsBytes(strings);
-
-                AddStructuralMetadata<string>(this, ext, propertyTableName, fieldname, stringBytes, offSetbytes);
+                if (stringBytes.Length > 0)
+                {
+                    var offSetbytes = BinaryTable.GetOffsetBuffer(strings);
+                    AddStructuralMetadata<string>(this, ext, propertyTableName, fieldname, stringBytes, offSetbytes);
+                }
             }
             else
             {
@@ -228,10 +230,13 @@ namespace SharpGLTF.Schema2
         // Creates EXTStructuralMetaData with Schema and 1 PropertyTable
         public EXTStructuralMetaData InitializeMetadataExtension(string propertyTableName, int numberOfFeatures)
         {
-            var featureId = new FeatureID(numberOfFeatures, 0, 0);
+            var featureId = new FeatureID(numberOfFeatures);
             var featureIds = new List<FeatureID>() { featureId };
-            // todo fix when there are multiple MeshPrimitives
-            LogicalMeshes[0].Primitives[0].SetFeatureIds(featureIds);
+            // todo fix when there are multiple Meshes?
+            foreach(var prim in LogicalMeshes[0].Primitives)
+            {
+                prim.SetFeatureIds(featureIds);
+            }
 
             var ext = UseExtension<EXTStructuralMetaData>();
 

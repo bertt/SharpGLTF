@@ -4,7 +4,6 @@ namespace SharpGLTF.Schema2
 {
     partial class MeshPrimitive
     {
-
         public void SetFeatureIds(List<FeatureID> list)
         {
             var ext = UseExtension<MeshExtMeshFeatures>();
@@ -48,9 +47,9 @@ namespace SharpGLTF.Schema2
         public FeatureID(int featureCount, int? attribute=null, int? propertyTable = null, string label=null)
         {
             _featureCount = featureCount;
-            _attribute = attribute;
+            _attribute = attribute == null? 0: attribute;
             _label = label;
-            _propertyTable = propertyTable;
+            _propertyTable = propertyTable == null ? 0 : propertyTable;
         }
     }
 }

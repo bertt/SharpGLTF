@@ -1,19 +1,24 @@
 ﻿using SharpGLTF.Geometry.VertexTypes;
 using SharpGLTF.Schema2;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Numerics;
+using System.Text;
+using System.Threading.Tasks;
 
-namespace CesiumMetadataSample
+namespace SharpGLTF.Scenes
 {
     [System.Diagnostics.DebuggerDisplay("𝐂:{Color} 𝐔𝐕:{TexCoord}")]
-    public struct VertexWithBatchId : IVertexCustom
+    public struct VertexWithFeatureId : IVertexCustom
     {
 
-        public static implicit operator VertexWithBatchId(float batchId)
+        public static implicit operator VertexWithFeatureId(float batchId)
         {
-            return new VertexWithBatchId(batchId);
+            return new VertexWithFeatureId(batchId);
         }
 
-        public VertexWithBatchId(float batchId)
+        public VertexWithFeatureId(float batchId)
         {
             BatchId = batchId;
         }
