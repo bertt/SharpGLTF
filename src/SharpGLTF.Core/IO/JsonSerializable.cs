@@ -254,6 +254,12 @@ namespace SharpGLTF.IO
 
             if (writer.TryWriteValue(value)) return;
 
+            if (value is System.Text.Json.Nodes.JsonNode jnode)
+            {
+                jnode.WriteTo(writer);
+                return;
+            }
+
             if (value is JsonSerializable vgltf) { vgltf.Serialize(writer); return; }
 
             if (value is System.Collections.IDictionary dict)
@@ -464,12 +470,10 @@ namespace SharpGLTF.IO
         private static bool _TryCastValue
             <
             #if !NETSTANDARD
-            [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors | DynamicallyAccessedMemberTypes.NonPublicConstructors)]
+            [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors | DynamicallyAccessedMemberTypes.PublicParameterlessConstructor | DynamicallyAccessedMemberTypes.NonPublicConstructors)]
             #endif
             T>(ref Utf8JsonReader reader, out Object value)
         {
-            var vtype = typeof(T);
-
             value = null;
 
             if (reader.TokenType == JSONTOKEN.EndArray) return false;
@@ -478,9 +482,13 @@ namespace SharpGLTF.IO
 
             if (reader.TokenType == JSONTOKEN.PropertyName) reader.Read();
 
-            // untangle nullable
+            // untangle nullable            
+
+            var vtype = typeof(T);
             var ntype = Nullable.GetUnderlyingType(vtype);
             if (ntype != null) vtype = ntype;
+
+            // known types            
 
             if (vtype == typeof(String)) { value = reader.AsString(); return true; }
             if (vtype == typeof(Boolean)) { value = reader.AsBoolean(); return true; }
@@ -540,6 +548,12 @@ namespace SharpGLTF.IO
                     l[8], l[9], l[10], l[11],
                     l[12], l[13], l[14], l[15]
                     );
+                return true;
+            }
+
+            if (typeof(System.Text.Json.Nodes.JsonNode).IsAssignableFrom(vtype))
+            {
+                value = System.Text.Json.Nodes.JsonNode.Parse(ref reader);
                 return true;
             }
 

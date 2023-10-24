@@ -5,15 +5,8 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
-using NJsonSchema.References;
-
-using JSONSCHEMA = NJsonSchema.JsonSchema;
-
 namespace SharpGLTF
 {
-    using CodeGen;
-    using SchemaReflection;    
-
     partial class Program
     {
         #region MAIN
@@ -63,19 +56,23 @@ namespace SharpGLTF
             processors.Add(new AgiArticulationsExtension());
             processors.Add(new AgiStkMetadataExtension());
 
+            // other
+            processors.Add(new XmpJsonLdExtension());
+
             processors.Add(new ExtMeshFeaturesExtension());
 
 
             // ----------------------------------------------  process all files
 
-            var processes = processors.SelectMany(item => item.Process());
-
-            foreach (var (targetFileName, schema) in processes)
+            foreach (var processor in processors)
             {
-                System.Console.WriteLine($"Emitting {targetFileName}...");
+                foreach(var (targetFileName, schema) in processor.Process())
+                {
+                    System.Console.WriteLine($"Emitting {targetFileName}...");
 
-                SchemaProcessing.EmitCodeFromSchema(targetFileName, schema, processors);
-            }
+                    SchemaProcessing.EmitCodeFromSchema(processor.GetTargetProject(), targetFileName, schema, processors);
+                }
+            }            
         }
 
         #endregion     

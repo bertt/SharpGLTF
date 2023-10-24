@@ -24,91 +24,7 @@ namespace SharpGLTF.Scenes
     [Category("Toolkit.Scenes")]
     public partial class SceneBuilderTests
     {
-        [Test(Description = "Creates a simple triangle with Cesium EXT_Structural_metadata")]
-        public void CreateCesiumWithStructuralMetadataAndExtMeshFeaturesTriangleScene()
-        {
-            TestContext.CurrentContext.AttachGltfValidatorLinks();
-
-            var material = MaterialBuilder.CreateDefault();
-
-            var mesh = new MeshBuilder<VertexPositionNormal, VertexWithFeatureId, VertexEmpty>("mesh");
-
-            var prim = mesh.UsePrimitive(material);
-            var vectors = (new Vector3(-10, 0, 0), new Vector3(10, 0, 0), new Vector3(0, 10, 0));
-            prim.AddTriangleWithFeatureId(vectors, Vector3.UnitX, 0);
-
-            var vectors1 = (new Vector3(10, -10, 0), new Vector3(-10, 0, 0), new Vector3(0, -10, 0));
-            prim.AddTriangleWithFeatureId(vectors1, Vector3.UnitX, 1);
-
-            var vectors2 = (new Vector3(5, 5, 0), new Vector3(5, 0, 0), new Vector3(10, 5, 0));
-            prim.AddTriangleWithFeatureId(vectors2, Vector3.UnitX, 2);
-
-            var scene = new SceneBuilder();
-
-            scene.AddRigidMesh(mesh, Matrix4x4.Identity);
-
-            var model = scene.ToGltf2();
-
-            var uints = new List<int>() { 1000, 1001, 1002 }.ConvertAll(x => (object)x);
-            var ints = new List<int>() { -1000, -1001, -1002 }.ConvertAll(x => (object)x);
-            var names = new List<string>() { "", "", "" }.ConvertAll(x => (object)x);
-            var floats = new List<float>() { 1.1000000f, 1.200000f, 1.300000f }.ConvertAll(x => (object)x);
-            var ext = model.InitializeMetadataExtension("propertyTable", names.Count);
-            model.AddMetadata(ext, "objectid1", names);
-            model.AddMetadata(ext, "ints", ints);
-            model.AddMetadata(ext, "floats", floats);
-            model.AddMetadata(ext, "uints", uints);
-
-            var meshExtMeshFeatures = (MeshExtMeshFeatures)model.LogicalMeshes[0].Primitives[0].Extensions.FirstOrDefault();
-            var featureIds = meshExtMeshFeatures.FeatureIds;
-            Assert.IsTrue(featureIds.Count == 1);
-
-            var metadataExtension = (EXTStructuralMetaData)model.Extensions.FirstOrDefault();
-            Assert.IsTrue(metadataExtension.PropertyTables.Count == 1);
-
-            var ctx = new ValidationResult(model, ValidationMode.Strict, true);
-            model.ValidateContent(ctx.GetContext());
-
-            scene.AttachToCurrentTest("cesium_metadata.glb");
-            scene.AttachToCurrentTest("cesium_metadata.gltf");
-            scene.AttachToCurrentTest("cesium_metadata.plotly");
-        }
-
-
-        [Test(Description = "Creates a simple triangle with Cesium outlining")]
-        public void CreateCesiumOutlineTriangleScene()
-        {
-            TestContext.CurrentContext.AttachGltfValidatorLinks();
-
-            var material = MaterialBuilder.CreateDefault();
-
-            var mesh = new MeshBuilder<VertexPosition>("mesh");
-
-            var prim = mesh.UsePrimitive(material);
-            prim.AddTriangle(new VertexPosition(-10, 0, 0), new VertexPosition(10, 0, 0), new VertexPosition(0, 10, 0));
-
-            var scene = new SceneBuilder();
-
-            scene.AddRigidMesh(mesh, Matrix4x4.Identity);
-
-            var model = scene.ToGltf2();
-
-            var outlines = new uint[] { 0, 1, 1, 2, 2, 0 };
-            model.LogicalMeshes[0].Primitives[0].SetCesiumOutline(outlines);
-
-            var cesiumOutlineExtension = (CesiumPrimitiveOutline)model.LogicalMeshes[0].Primitives[0].Extensions.FirstOrDefault();
-            Assert.NotNull(cesiumOutlineExtension.Indices);
-            CollectionAssert.AreEqual(outlines, cesiumOutlineExtension.Indices.AsIndicesArray());
-
-            var ctx = new ValidationResult(model, ValidationMode.Strict, true);
-            model.ValidateContent(ctx.GetContext());
-
-            scene.AttachToCurrentTest("cesium_outline_triangle.glb");
-            scene.AttachToCurrentTest("cesium_outline_triangle.gltf");
-            scene.AttachToCurrentTest("cesium_outline_triangle.plotly");
-        }
-
-        [Test(Description = "Creates a simple cube.")]
+        [Test(Description ="Creates a simple cube.")]
         public void CreateCubeScene()
         {
             TestContext.CurrentContext.AttachGltfValidatorLinks();
@@ -172,7 +88,11 @@ namespace SharpGLTF.Scenes
 
             var material = MaterialBuilder.CreateDefault();
             material.Name = "hello name";
-            material.Extras = IO.JsonContent.Serialize(new KeyValuePair<string, int>("hello", 16));
+
+            var extras = new System.Text.Json.Nodes.JsonObject();
+            extras["hello"] = 16;
+
+            material.Extras = extras;
 
             var mesh = new Cube<MaterialBuilder>(material).ToMesh(Matrix4x4.Identity);
             mesh.Name = "world name";
