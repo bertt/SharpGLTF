@@ -2,9 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
-using System.Runtime.CompilerServices;
 using System.Text;
-using System.Threading.Tasks;
+
 using NUnit.Framework;
 
 using SharpGLTF.Schema2;
@@ -39,7 +38,7 @@ namespace SharpGLTF
                 .WriteObject(f => model.SaveAsWavefront(f, animation, time));
         }
 
-        public static async Task<string> AttachToCurrentTest<TvG, TvM, TvS>(this Geometry.MeshBuilder<TvG, TvM, TvS> mesh, string fileName)
+        public static string AttachToCurrentTest<TvG, TvM, TvS>(this Geometry.MeshBuilder<TvG, TvM, TvS> mesh, string fileName)
             where TvG : struct, Geometry.VertexTypes.IVertexGeometry
             where TvM : struct, Geometry.VertexTypes.IVertexMaterial
             where TvS : struct, Geometry.VertexTypes.IVertexSkinning
@@ -51,10 +50,10 @@ namespace SharpGLTF
             var node = gl2model.UseScene(0).CreateNode();
             node.Mesh = gl2mesh;
 
-            return await gl2model.AttachToCurrentTest(fileName);
+            return gl2model.AttachToCurrentTest(fileName);
         }
 
-        public static async Task<string> AttachToCurrentTest(this ModelRoot model, string fileName, WriteSettings settings = null)
+        public static string AttachToCurrentTest(this ModelRoot model, string fileName, WriteSettings settings = null)
         {
             string validationPath = null;
 
@@ -102,7 +101,7 @@ namespace SharpGLTF
 
             if (validationPath != null)
             {
-                var report = await GltfValidator.ValidationReport.ValidateAsync(fileName, System.Threading.CancellationToken.None);
+                var report = GltfValidator.ValidationReport.ValidateAsync(fileName, System.Threading.CancellationToken.None).ConfigureAwait(false).GetAwaiter().GetResult();
 
                 if (report == null) return fileName;
 
