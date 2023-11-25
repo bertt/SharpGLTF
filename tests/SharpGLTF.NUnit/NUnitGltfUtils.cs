@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
 using System.Text;
-
+using System.Threading.Tasks;
 using NUnit.Framework;
 
 using SharpGLTF.Schema2;
@@ -18,7 +18,7 @@ namespace SharpGLTF
             // new AttachmentInfo(context, "🌍 BabylonJS Sandbox.lnk").WriteLink("https://sandbox.babylonjs.com/");
             // new AttachmentInfo(context, "🌍 Don McCurdy Sandbox.lnk").WriteLink("https://gltf-viewer.donmccurdy.com/");
             // new AttachmentInfo(context, "🌍 VirtualGIS Cesium Sandbox.lnk").WriteLink("https://www.virtualgis.io/gltfviewer/");
-        }        
+        }
 
         public static void AttachToCurrentTest(this Scenes.SceneBuilder scene, string fileName)
         {
@@ -76,7 +76,7 @@ namespace SharpGLTF
             else if (fileName.ToLowerInvariant().EndsWith(".obj"))
             {
                 // skip exporting to obj if gpu instancing is there
-                if (Node.Flatten(model.DefaultScene).Any(n => n.GetGpuInstancing() != null)) return fileName;                
+                if (Node.Flatten(model.DefaultScene).Any(n => n.GetGpuInstancing() != null)) return fileName;
 
                 fileName = fileName.Replace(" ", "_");
 
@@ -97,11 +97,14 @@ namespace SharpGLTF
                     .From(fileName)
                     .WriteAllText(html)
                     .FullName;
-            }           
+            }
 
             if (validationPath != null)
             {
-                var report = GltfValidator.ValidationReport.ValidateAsync(fileName, System.Threading.CancellationToken.None).ConfigureAwait(false).GetAwaiter().GetResult();                
+                var report = Task
+                    .Run(async () => await
+                        GltfValidator.ValidationReport.ValidateAsync(fileName, System.Threading.CancellationToken.None).ConfigureAwait(false)
+                ).Result;
 
                 if (report == null) return fileName;
 
@@ -117,5 +120,5 @@ namespace SharpGLTF
         }
     }
 
-    
+
 }
