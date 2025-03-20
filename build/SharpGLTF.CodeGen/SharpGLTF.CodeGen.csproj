@@ -13,7 +13,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Schemas\" />
 	<None Update="Schemas\**\*" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 </Project>
