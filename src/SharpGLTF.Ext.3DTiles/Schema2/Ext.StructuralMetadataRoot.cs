@@ -734,6 +734,57 @@ namespace SharpGLTF.Schema2
                 }
             }
 
+            public IReadOnlyCollection<T> GetValues<T>()
+            {
+                var className = LogicalParent.ClassName;
+                var model = LogicalParent.LogicalParent.LogicalParent;
+                var bufferView = model.LogicalBufferViews[Values];
+                var schemaProperty = GetProperty<T>(className, LogicalKey);
+                var componentType = schemaProperty.ComponentType;
+
+                var result = new List<T>();
+
+                var type = typeof(T);
+                int size = 0;
+                if (type == typeof(uint) || type == typeof(int))
+                {
+                    size = sizeof(uint);
+                }
+
+                var buffer = bufferView.Content.Array;
+                var offset = bufferView.Content.Offset;
+                int count = bufferView.Content.Count / size;
+                
+                for (int i = 0; i < count; i++)
+                {
+                    var p = ConvertFromBytes<T>(buffer, offset + i * size);
+                    result.Add(p);
+                }
+
+                return result;
+            }
+
+
+            public static T ConvertFromBytes<T>(byte[] buffer, int offset)
+            {
+                object value = null;
+
+                if (typeof(T) == typeof(int))
+                {
+                    value = BitConverter.ToInt32(buffer, offset);
+                }
+                else if (typeof(T) == typeof(uint))
+                {
+                    value = BitConverter.ToUInt32(buffer, offset);
+                }
+                else
+                {
+                    throw new NotSupportedException($"Type {typeof(T)} is not supported.");
+                }
+
+                return (T)value;
+            }
+
             public void SetValues<T>(params T[] values)
             {
                 Guard.IsTrue(values.Length == LogicalParent.Count, nameof(values), $"Values must have length {LogicalParent.Count}");

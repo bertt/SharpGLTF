@@ -22,6 +22,57 @@ namespace SharpGLTF.Schema2.Tiles3D
             Tiles3DExtensions.RegisterExtensions();
         }
 
+
+        [Test(Description = "Read Structural Metatadata")]
+        public void ReadStructuralMetadataTest()
+        {
+            uint uintValue = 0;
+            var intValue = 1;
+
+            var material = MaterialBuilder.CreateDefault().WithDoubleSide(true);
+            var mesh = new MeshBuilder<VertexPosition>("mesh");
+            var prim = mesh.UsePrimitive(material);
+
+            var scene = new SceneBuilder();
+            scene.AddRigidMesh(mesh, Matrix4x4.Identity);
+            var model = scene.ToGltf2();
+
+            var rootMetadata = model.UseStructuralMetadata();
+            var schema = rootMetadata.UseEmbeddedSchema("schema_001");
+
+            var schemaClass = schema.UseClassMetadata("triangles");
+
+            var uintProperty = schemaClass
+                .UseProperty("uint").WithUInt32Type();
+
+            var intProperty = schemaClass
+                .UseProperty("int").WithInt32Type();
+
+            var propertyTable = schemaClass
+                .AddPropertyTable(1);
+
+            propertyTable
+                .UseProperty(uintProperty)
+                .SetValues(uintValue);
+
+            propertyTable
+                .UseProperty(intProperty)
+                .SetValues(intValue);
+
+            var properties = propertyTable.Properties;
+            Assert.That(properties.Count == 2);
+
+            var fidUints = properties["uint"];
+            var uints = fidUints.GetValues<uint>();
+            Assert.That(uints.Count == 1);
+            Assert.That(uints.ToArray()[0] == uintValue);
+
+            var fidInts = properties["int"];
+            var ints = fidInts.GetValues<int>();
+            Assert.That(ints.Count == 1);
+            Assert.That(ints.ToArray()[0] == intValue);
+        }
+
         // Test files are from https://github.com/CesiumGS/3d-tiles-validator/tree/main/specs/data/gltfExtensions/structuralMetadata
         [Test(Description = "Reads glTF's with EXT_Structural_Metadata")]
         [TestCase("ExtensionInMeshPrimitiveWithoutTopLevelObject.gltf", typeof(ModelException))]
