@@ -64,7 +64,7 @@ namespace SharpGLTF.Schema2
                 set { SetProperty(this, ref _schema, value); }
             }
 
-            internal IReadOnlyList<PropertyTable> PropertyTables => _propertyTables;
+            public IReadOnlyList<PropertyTable> PropertyTables => _propertyTables;
             internal IReadOnlyList<PropertyAttribute> PropertyAttributes => _propertyAttributes;
             internal IReadOnlyList<PropertyTexture> PropertyTextures => _propertyTextures;
 
