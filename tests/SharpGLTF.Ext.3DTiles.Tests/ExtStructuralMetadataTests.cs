@@ -2,6 +2,7 @@
 using SharpGLTF.Geometry;
 using SharpGLTF.Geometry.VertexTypes;
 using SharpGLTF.Materials;
+using SharpGLTF.Memory;
 using SharpGLTF.Scenes;
 using SharpGLTF.Validation;
 using System;
@@ -26,8 +27,24 @@ namespace SharpGLTF.Schema2.Tiles3D
         [Test(Description = "Read Structural Metatadata")]
         public void ReadStructuralMetadataTest()
         {
-            uint uintValue = 0;
-            var intValue = 1;
+            bool boolValue = true;
+            byte byteValue = 100;
+            sbyte sbyteValue = 1;
+            ushort ushortValue = 2;
+            short shortValue = 3;
+            uint uintValue = 4;
+            int intValue = 5;
+            ulong ulongValue = 6;
+            long longValue = 7;
+            float floatValue = 8.0f;
+            double doubleValue = 9.0;
+            string stringValue = "test string";
+            var vector2Value = new Vector2(1, 2);
+            var vector3Value = new Vector3(1, 2, 3);
+            var vector4Value = new Vector4(1, 2, 3, 4);
+            var matrix4x4Value = Matrix4x4.CreateTranslation(1, 2, 3);
+            var item1 = new List<int> { 1, 2, 3 };
+            var intArrayValues = new List<List<int>>() { item1 };
 
             var material = MaterialBuilder.CreateDefault().WithDoubleSide(true);
             var mesh = new MeshBuilder<VertexPosition>("mesh");
@@ -39,8 +56,24 @@ namespace SharpGLTF.Schema2.Tiles3D
 
             var rootMetadata = model.UseStructuralMetadata();
             var schema = rootMetadata.UseEmbeddedSchema("schema_001");
+            var enumValue = schema.UseEnumMetadata("exampleEnumType", ("ExampleEnumValueA", 0), ("ExampleEnumValueB", 1), ("ExampleEnumValueC", 2));
 
             var schemaClass = schema.UseClassMetadata("triangles");
+
+            var boolProperty = schemaClass
+                .UseProperty("bool").WithBooleanType();
+            
+            var byteProperty = schemaClass
+                .UseProperty("byte").WithUInt8Type();
+
+            var sbyteProperty = schemaClass
+                .UseProperty("sbyte").WithInt8Type();
+
+            var ushortProperty = schemaClass
+                .UseProperty("ushort").WithUInt16Type();
+
+            var shortProperty = schemaClass
+                .UseProperty("short").WithInt16Type();
 
             var uintProperty = schemaClass
                 .UseProperty("uint").WithUInt32Type();
@@ -48,8 +81,61 @@ namespace SharpGLTF.Schema2.Tiles3D
             var intProperty = schemaClass
                 .UseProperty("int").WithInt32Type();
 
+            var ulongProperty = schemaClass
+                .UseProperty("ulong").WithUInt64Type();
+
+            var longProperty = schemaClass
+                .UseProperty("long").WithInt64Type();
+
+            var floatProperty = schemaClass
+                .UseProperty("float").WithFloat32Type();
+
+            var doubleProperty = schemaClass
+                .UseProperty("double").WithFloat64Type();
+
+            var stringProperty = schemaClass
+                .UseProperty("string").WithStringType();
+
+            var vector2Property = schemaClass
+                .UseProperty("vector2").WithVector2Type();
+
+            var vector3Property = schemaClass
+                .UseProperty("vector3").WithVector3Type();
+
+            var vector4Property = schemaClass
+                .UseProperty("vector4").WithVector4Type();
+
+            var matrix4x4Property = schemaClass
+                .UseProperty("matrix4x4").WithMatrix4x4Type(matrix4x4Value);
+
+            var enumProperty = schemaClass
+                .UseProperty("enum").WithEnumeration(enumValue, "ExampleEnumValueA");
+
+            var listIntProperty = schemaClass
+                .UseProperty("listInt").WithInt32ArrayType();
+
             var propertyTable = schemaClass
                 .AddPropertyTable(1);
+
+            propertyTable
+                .UseProperty(boolProperty)
+                .SetValues(boolValue);
+
+            propertyTable
+                .UseProperty(byteProperty)
+                .SetValues(byteValue);
+
+            propertyTable 
+                .UseProperty(sbyteProperty)
+                .SetValues(sbyteValue);
+
+            propertyTable
+                .UseProperty(ushortProperty)
+                .SetValues(ushortValue);
+
+            propertyTable
+                .UseProperty(shortProperty)
+                .SetValues(shortValue);
 
             propertyTable
                 .UseProperty(uintProperty)
@@ -59,8 +145,73 @@ namespace SharpGLTF.Schema2.Tiles3D
                 .UseProperty(intProperty)
                 .SetValues(intValue);
 
+            propertyTable
+                .UseProperty(ulongProperty)
+                .SetValues(ulongValue);
+
+            propertyTable
+                .UseProperty(longProperty)
+                .SetValues(longValue);
+
+            propertyTable.
+                UseProperty(floatProperty)
+                .SetValues(floatValue);
+
+            propertyTable
+                .UseProperty(doubleProperty)
+                .SetValues(doubleValue);
+
+            propertyTable
+                .UseProperty(stringProperty)
+                .SetValues(stringValue);
+
+            propertyTable
+                .UseProperty(vector2Property)
+                .SetValues(vector2Value);
+
+            propertyTable
+                .UseProperty(vector3Property)
+                .SetValues(vector3Value);
+
+            propertyTable
+                .UseProperty(vector4Property)
+                .SetValues(vector4Value);
+
+            propertyTable
+                .UseProperty(matrix4x4Property)
+                .SetValues(matrix4x4Value);
+
+            propertyTable
+                .UseProperty(enumProperty)
+                .SetValues((short)0);
+
+            propertyTable
+                .UseProperty(listIntProperty)
+                .SetArrayValues(intArrayValues);
+
             var properties = propertyTable.Properties;
-            Assert.That(properties.Count == 2);
+            Assert.That(properties.Count == 18);
+
+            var propertyBoolean = properties["bool"];
+            var bools = propertyBoolean.GetValues<bool>();
+            Assert.That(bools.Count == 1);
+            Assert.That(bools.ToArray()[0] == boolValue);
+
+            var propertyByte = properties["byte"];
+            var bytes = propertyByte.GetValues<byte>();
+            Assert.That(bytes.ToArray()[0] == byteValue);
+
+            var propertySbyte = properties["sbyte"];
+            var sbytes = propertySbyte.GetValues<sbyte>();
+            Assert.That(sbytes.ToArray()[0] == sbyteValue);
+
+            var propertyUshort = properties["ushort"];
+            var ushorts = propertyUshort.GetValues<ushort>();
+            Assert.That(ushorts.ToArray()[0] == ushortValue);
+
+            var propertyShort = properties["short"];
+            var shorts = propertyShort.GetValues<short>();
+            Assert.That(shorts.ToArray()[0] == shortValue);
 
             var fidUints = properties["uint"];
             var uints = fidUints.GetValues<uint>();
@@ -71,6 +222,56 @@ namespace SharpGLTF.Schema2.Tiles3D
             var ints = fidInts.GetValues<int>();
             Assert.That(ints.Count == 1);
             Assert.That(ints.ToArray()[0] == intValue);
+
+            var propertyULong = properties["ulong"];
+            var ulongs = propertyULong.GetValues<ulong>();
+            Assert.That(ulongs.Count == 1);
+            Assert.That(ulongs.ToArray()[0] == ulongValue);
+
+            var propertyLong = properties["long"];
+            var longs = propertyLong.GetValues<long>();
+            Assert.That(longs.Count == 1);
+            Assert.That(longs.ToArray()[0] == longValue);
+
+            var propertyFloat = properties["float"];
+            var floats = propertyFloat.GetValues<float>();
+            Assert.That(floats.Count == 1);
+            Assert.That(floats.ToArray()[0] == floatValue);
+
+            var propertyDouble = properties["double"];
+            var doubles = propertyDouble.GetValues<double>();
+            Assert.That(doubles.Count == 1);
+            Assert.That(doubles.ToArray()[0] == doubleValue);
+
+            var propertyString = properties["string"];
+            var strings = propertyString.GetValues<string>();
+            Assert.That(strings.Count == 1);
+            Assert.That(strings.ToArray()[0] == stringValue);
+
+            var propertyVector2 = properties["vector2"];
+            var vector2s = propertyVector2.GetValues<Vector2>();
+            Assert.That(vector2s.Count == 1);
+            Assert.That(vector2s.ToArray()[0] == vector2Value);
+
+            var propertyVector3 = properties["vector3"];
+            var vector3s = propertyVector3.GetValues<Vector3>();
+            Assert.That(vector3s.Count == 1);
+            Assert.That(vector3s.ToArray()[0] == vector3Value);
+
+            var propertyVector4 = properties["vector4"];
+            var vector4s = propertyVector4.GetValues<Vector4>();
+            Assert.That(vector4s.Count == 1);
+            Assert.That(vector4s.ToArray()[0] == vector4Value);
+
+            var propertyMatrix4x4 = properties["matrix4x4"];
+            var matrix4x4s = propertyMatrix4x4.GetValues<Matrix4x4>();
+            Assert.That(matrix4x4s.Count == 1);
+            Assert.That(matrix4x4s.ToArray()[0] == matrix4x4Value);
+
+            var propertyEnum = properties["enum"];
+            var enums = propertyEnum.GetValues<short>();
+            Assert.That(enums.Count == 1);
+            Assert.That(enums.ToArray()[0] == 0);
         }
 
         // Test files are from https://github.com/CesiumGS/3d-tiles-validator/tree/main/specs/data/gltfExtensions/structuralMetadata

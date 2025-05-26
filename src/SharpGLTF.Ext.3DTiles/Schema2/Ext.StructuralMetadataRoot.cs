@@ -10,10 +10,10 @@ namespace SharpGLTF.Schema2
 {
     using Collections;
     using Memory;
-    using Validation;
-    using Tiles3D;
     using System.Numerics;
     using System.Text.Json.Nodes;
+    using Tiles3D;
+    using Validation;
 
     partial class Tiles3DExtensions
     {
@@ -740,21 +740,168 @@ namespace SharpGLTF.Schema2
                 var model = LogicalParent.LogicalParent.LogicalParent;
                 var bufferView = model.LogicalBufferViews[Values];
                 var schemaProperty = GetProperty<T>(className, LogicalKey);
+                var isArray = schemaProperty.Array;
+
                 var componentType = schemaProperty.ComponentType;
-
-                var result = new List<T>();
-
-                var type = typeof(T);
-                int size = 0;
-                if (type == typeof(uint) || type == typeof(int))
-                {
-                    size = sizeof(uint);
-                }
 
                 var buffer = bufferView.Content.Array;
                 var offset = bufferView.Content.Offset;
+
+                var type = typeof(T);
+                int size = GetSize<T>();
+
+                if (type == typeof(string))
+                {
+                    var offsetSize = sizeof(UInt32);
+                    var stringOffsetsBufferView = model.LogicalBufferViews[StringOffsets.Value];
+                    var offsetCount = stringOffsetsBufferView.Content.Count / offsetSize;
+                    var stringOffsets = GetItems<UInt32>(stringOffsetsBufferView.Content.Array, stringOffsetsBufferView.Content.Offset, offsetSize, offsetCount);
+                    
+                    var stringValuesBufferView = model.LogicalBufferViews[Values];
+                    var strings = GetStrings(buffer, offset, stringOffsets);
+                    return strings.Cast<T>().ToList().AsReadOnly();
+                }
+                else if (type == typeof(Vector2))
+                {
+                    var vector2s = GetVector2(bufferView, buffer, offset);
+                    return vector2s.Cast<T>().ToList().AsReadOnly();
+                }
+                else if (type == typeof(Vector3))
+                {
+                    var vector3s = GetVector3(bufferView, buffer, offset);
+                    return vector3s.Cast<T>().ToList().AsReadOnly();
+                }
+                else if (type == typeof(Vector4))
+                {
+                    var vector4s = GetVector4(bufferView, buffer, offset);
+                    return vector4s.Cast<T>().ToList().AsReadOnly();
+                }
+                else if (type == typeof(Matrix4x4))
+                {
+                    var  matrices = GetMatrix4x4(bufferView, buffer, offset);
+                    return matrices.Cast<T>().ToList().AsReadOnly();
+                }
+
                 int count = bufferView.Content.Count / size;
-                
+                var result = GetItems<T>(buffer, offset, size, count);
+
+                return result;
+            }
+
+            private int GetSize<T>()
+            {
+                return typeof(T) switch
+                {
+                    Type t when t == typeof(bool) => sizeof(bool),
+                    Type t when t == typeof(byte) => sizeof(byte),
+                    Type t when t == typeof(sbyte) => sizeof(sbyte),
+                    Type t when t == typeof(ushort) => sizeof(ushort),
+                    Type t when t == typeof(short) => sizeof(short),
+                    Type t when t == typeof(uint) => sizeof(uint),
+                    Type t when t == typeof(int) => sizeof(uint),
+                    Type t when t == typeof(ulong) => sizeof(ulong),
+                    Type t when t == typeof(long) => sizeof(long),
+                    Type t when t == typeof(float) => sizeof(float),
+                    Type t when t == typeof(double) => sizeof(double),
+                    _ => 0
+                };
+            }
+            private static List<Vector2> GetVector2(BufferView bufferView, byte[] buffer, int offset)
+            {
+                int floatSize = sizeof(float);
+                int count = bufferView.Content.Count / (floatSize * 2);
+
+                var vectors = new List<Vector2>(count);
+                for (int i = 0; i < count; i++)
+                {
+                    int baseIndex = offset + i * floatSize * 3;
+                    vectors.Add(new Vector2(
+                        BitConverter.ToSingle(buffer, baseIndex),
+                        BitConverter.ToSingle(buffer, baseIndex + floatSize)
+                    ));
+                }
+
+                return vectors;
+            }
+
+            private static List<Vector3> GetVector3(BufferView bufferView, byte[] buffer, int offset)
+            {
+                var floatSize = sizeof(float);
+                var vector3Count = bufferView.Content.Count / (floatSize * 3);
+
+                var vector3s = new List<Vector3>(vector3Count);
+                for (var i = 0; i < vector3Count; i++)
+                {
+                    var x = BitConverter.ToSingle(buffer, offset + i * floatSize * 3);
+                    var y = BitConverter.ToSingle(buffer, offset + i * floatSize * 3 + floatSize);
+                    var z = BitConverter.ToSingle(buffer, offset + i * floatSize * 3 + floatSize * 2);
+                    var vector = new Vector3(x, y, z);
+                    vector3s.Add(vector);
+                }
+
+                return vector3s;
+            }
+            private static List<Vector4> GetVector4(BufferView bufferView, byte[] buffer, int offset)
+            {
+                var floatSize = sizeof(float);
+                var vector4Count = bufferView.Content.Count / (floatSize * 4);
+
+                var vector4s = new List<Vector4>(vector4Count);
+                for (var i = 0; i < vector4Count; i++)
+                {
+                    var x = BitConverter.ToSingle(buffer, offset + i * floatSize * 3);
+                    var y = BitConverter.ToSingle(buffer, offset + i * floatSize * 3 + floatSize);
+                    var w = BitConverter.ToSingle(buffer, offset + i * floatSize * 3 + floatSize * 2);
+                    var z = BitConverter.ToSingle(buffer, offset + i * floatSize * 3 + floatSize * 3);
+                    var vector = new Vector4(x, y, w, z);
+                    vector4s.Add(vector);
+                }
+
+                return vector4s;
+            }
+
+            private static List<Matrix4x4> GetMatrix4x4(BufferView bufferView, byte[] buffer, int offset)
+            {
+                var floatSize = sizeof(float);
+                var matrixCount = bufferView.Content.Count / (floatSize * 16);
+                var matrices = new List<Matrix4x4>(matrixCount);
+
+                for (var i = 0; i < matrixCount; i++)
+                {
+                    float[] matrix = new float[16];
+                    int baseOffset = offset + i * floatSize * 16;
+
+                    for (int j = 0; j < 16; j++)
+                    {
+                        matrix[j] = BitConverter.ToSingle(buffer, baseOffset + j * floatSize);
+                    }
+                    var mat = new Matrix4x4(
+                        matrix[0], matrix[1], matrix[2], matrix[3],
+                        matrix[4], matrix[5], matrix[6], matrix[7],
+                        matrix[8], matrix[9], matrix[10], matrix[11],
+                        matrix[12], matrix[13], matrix[14], matrix[15]);
+                    matrices.Add(mat);
+                }
+
+                return matrices;
+            }
+
+            private static List<string> GetStrings(byte[] buffer, int offset, List<uint> offsets)
+            {
+                var result = new List<string>(offsets.Count - 1);
+                for (var i = 0; i < offsets.Count - 1; i++)
+                {
+                    var start = (int)offsets[i];
+                    var length = (int)(offsets[i + 1] - offsets[i]);
+                    result.Add(System.Text.Encoding.UTF8.GetString(buffer, offset + start, length));
+                }
+                return result;
+            }
+
+            private static List<T> GetItems<T>(byte[] buffer, int offset, int size, int count)
+            {
+                var result = new List<T>();
+
                 for (int i = 0; i < count; i++)
                 {
                     var p = ConvertFromBytes<T>(buffer, offset + i * size);
@@ -764,27 +911,26 @@ namespace SharpGLTF.Schema2
                 return result;
             }
 
-
             public static T ConvertFromBytes<T>(byte[] buffer, int offset)
             {
-                object value = null;
-
-                if (typeof(T) == typeof(int))
+                object value = typeof(T) switch
                 {
-                    value = BitConverter.ToInt32(buffer, offset);
-                }
-                else if (typeof(T) == typeof(uint))
-                {
-                    value = BitConverter.ToUInt32(buffer, offset);
-                }
-                else
-                {
-                    throw new NotSupportedException($"Type {typeof(T)} is not supported.");
-                }
+                    var t when t == typeof(bool) => BitConverter.ToBoolean(buffer, offset),
+                    var t when t == typeof(byte) => buffer[offset],
+                    var t when t == typeof(sbyte) => (sbyte)buffer[offset],
+                    var t when t == typeof(ushort) => BitConverter.ToUInt16(buffer, offset),
+                    var t when t == typeof(short) => BitConverter.ToInt16(buffer, offset),
+                    var t when t == typeof(int) => BitConverter.ToInt32(buffer, offset),
+                    var t when t == typeof(uint) => BitConverter.ToUInt32(buffer, offset),
+                    var t when t == typeof(ulong) => BitConverter.ToUInt64(buffer, offset),
+                    var t when t == typeof(long) => BitConverter.ToInt64(buffer, offset),
+                    var t when t == typeof(float) => BitConverter.ToSingle(buffer, offset),
+                    var t when t == typeof(double) => BitConverter.ToDouble(buffer, offset),
+                    _ => throw new NotSupportedException($"Type {typeof(T)} is not supported.")
+                };
 
                 return (T)value;
             }
-
             public void SetValues<T>(params T[] values)
             {
                 Guard.IsTrue(values.Length == LogicalParent.Count, nameof(values), $"Values must have length {LogicalParent.Count}");
@@ -850,7 +996,7 @@ namespace SharpGLTF.Schema2
                 }
                 else if (elementType == ELEMENTTYPE.BOOLEAN)
                 {
-                    Guard.IsTrue(typeof(T) == typeof(bool), nameof(T), $"Boolean type of property {LogicalKey} must beboolean");
+                    Guard.IsTrue(typeof(T) == typeof(bool), nameof(T), $"Boolean type of property {LogicalKey} must be boolean");
                 }
                 else if (elementType == ELEMENTTYPE.VEC2)
                 {
@@ -930,7 +1076,6 @@ namespace SharpGLTF.Schema2
                 int logicalIndex = bufferView.LogicalIndex;
                 return logicalIndex;
             }
-
             #endregion
         }
 
@@ -1442,6 +1587,23 @@ namespace SharpGLTF.Schema2
             }
 
 
+            public StructuralMetadataClassProperty WithVector2Type(Vector2? noData = null, Vector2? defaultValue = null)
+            {
+                _type = ElementType.VEC2;
+                _componentType = DataType.FLOAT32;
+
+                if (noData != null)
+                {
+                    _noData = new JsonArray(noData.Value.X, noData.Value.Y);
+                }
+                if (defaultValue != null)
+                {
+                    _default = new JsonArray(defaultValue.Value.X, defaultValue.Value.Y);
+                }
+
+                return this;
+            }
+
             public StructuralMetadataClassProperty WithVector3Type(Vector3? noData = null, Vector3? defaultValue = null)
             {
                 _type = ElementType.VEC3;
@@ -1458,6 +1620,24 @@ namespace SharpGLTF.Schema2
 
                 return this;
             }
+
+            public StructuralMetadataClassProperty WithVector4Type(Vector4? noData = null, Vector4? defaultValue = null)
+            {
+                _type = ElementType.VEC4;
+                _componentType = DataType.FLOAT32;
+
+                if (noData != null)
+                {
+                    _noData = new JsonArray(noData.Value.X, noData.Value.Y, noData.Value.W, noData.Value.Z);
+                }
+                if (defaultValue != null)
+                {
+                    _default = new JsonArray(defaultValue.Value.X, defaultValue.Value.Y, defaultValue.Value.W, defaultValue.Value.Z);
+                }
+
+                return this;
+            }
+
 
             public StructuralMetadataClassProperty WithMatrix4x4Type(Matrix4x4? noData = null, Matrix4x4? defaultValue = null)
             {
