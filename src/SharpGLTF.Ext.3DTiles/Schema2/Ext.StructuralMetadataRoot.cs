@@ -754,35 +754,36 @@ namespace SharpGLTF.Schema2
                 var count = metadataProperty.Count; // 3
                 var size = bufferView.Content.Count / count; // 12
                 var items = size / elementSize;
+                var bufferViewArray = bufferView.Content.Array;
+
+                List<T> result;
 
                 if (argumentType == typeof(int))
-                    return ProcessItems<int>().Cast<T>().ToList().AsReadOnly();
-                else if (argumentType == typeof(byte))
-                    return ProcessItems<byte>().Cast<T>().ToList().AsReadOnly();
-                else
-                    throw new NotSupportedException($"Type {argumentType} is not supported");
-
-                List<List<TItem>> ProcessItems<TItem>()
                 {
-                    var result = new List<List<TItem>>();
-
-                    for (var i = 0; i < items; i++)
-                    {
-
-                        var offset = bufferView.Content.Offset + i * size;
-                        var buffer = bufferView.Content.Array;
-                        var itemBytes = new byte[(int)count * (int)size];
-                        Array.Copy(buffer, (int)offset, itemBytes, 0, itemBytes.Length);
-                        var items1 = GetItems<TItem>(itemBytes, 0, elementSize, (int)count);
-                        result.Add(items1);
-                    }
-
-                    return result;
+                    return ProcessItems<int>(bufferViewArray, (int)items, (int)count, elementSize).Cast<T>().ToList().AsReadOnly();
                 }
+                else if (argumentType == typeof(byte))
+                {
+                    // return ProcessItems<byte>(bufferViewArray, (int)items, (int)size, (int)count, elementSize).Cast<T>().ToList().AsReadOnly();
+                }
+                return null;
             }
 
+            List<List<TItem>> ProcessItems<TItem>(byte[] buffer, int items, int count, int elementSize)
+            {
+                var result = new List<List<TItem>>();
 
+                for (var i = 0; i < items; i++)
+                {
+                    var offset = i * count * elementSize;
+                    var itemBytes = new byte[(int)count * (int)elementSize];
+                    Array.Copy(buffer, offset, itemBytes, 0, itemBytes.Length);
+                    var items1 = GetItems<TItem>(itemBytes, 0, elementSize, (int)count);
+                    result.Add(items1);
+                }
 
+                return result;
+            }
 
             private static List<T> GetItems<T>(byte[] buffer, int offset, int size, int count)
             {
