@@ -10,6 +10,8 @@ namespace SharpGLTF.Schema2
 {
     using Collections;
     using Memory;
+    using System.Collections.ObjectModel;
+    using System.Drawing;
     using System.Numerics;
     using System.Text.Json.Nodes;
     using Tiles3D;
@@ -734,8 +736,79 @@ namespace SharpGLTF.Schema2
                 }
             }
 
+            private IReadOnlyCollection<T> GetArrayValues<T>()
+            {
+                var className = LogicalParent.ClassName;
+                var metadataClass = LogicalParent.LogicalParent.Schema.Classes[className];
+
+                metadataClass.Properties.TryGetValue(LogicalKey, out var metadataProperty);
+                var t = typeof(T);
+                bool isGenericList = t.IsGenericType && t.GetGenericTypeDefinition() == typeof(List<>);
+                
+                Guard.IsTrue(isGenericList, "Parameter T");
+                var argumentType = t.GetGenericArguments()[0];
+                var elementSize = GetSize<T>(); // 4
+
+                var model = LogicalParent.LogicalParent.LogicalParent;
+                var bufferView = model.LogicalBufferViews[Values];
+                var count = metadataProperty.Count; // 3
+                var size = bufferView.Content.Count / count; // 12
+                var items = size / elementSize;
+
+                if (argumentType == typeof(int))
+                    return ProcessItems<int>().Cast<T>().ToList().AsReadOnly();
+                else if (argumentType == typeof(byte))
+                    return ProcessItems<byte>().Cast<T>().ToList().AsReadOnly();
+                else
+                    throw new NotSupportedException($"Type {argumentType} is not supported");
+
+                List<List<TItem>> ProcessItems<TItem>()
+                {
+                    var result = new List<List<TItem>>();
+
+                    for (var i = 0; i < items; i++)
+                    {
+
+                        var offset = bufferView.Content.Offset + i * size;
+                        var buffer = bufferView.Content.Array;
+                        var itemBytes = new byte[(int)count * (int)size];
+                        Array.Copy(buffer, (int)offset, itemBytes, 0, itemBytes.Length);
+                        var items1 = GetItems<TItem>(itemBytes, 0, elementSize, (int)count);
+                        result.Add(items1);
+                    }
+
+                    return result;
+                }
+            }
+
+
+
+
+            private static List<T> GetItems<T>(byte[] buffer, int offset, int size, int count)
+            {
+                var result = new List<T>();
+
+                for (int i = 0; i < count; i++)
+                {
+                    var p = ConvertFromBytes<T>(buffer, offset + i * size);
+                    result.Add(p);
+                }
+
+                return result;
+            }
+
+
             public IReadOnlyCollection<T> GetValues<T>()
             {
+                var type = typeof(T);
+                var isGenericList = type.IsGenericType && type.GetGenericTypeDefinition() == typeof(List<>);
+                if (isGenericList)
+                {
+                    return GetArrayValues<T>();
+                }
+
+                Guard.IsFalse(isGenericList, "Parameter T");
+
                 var className = LogicalParent.ClassName;
                 var model = LogicalParent.LogicalParent.LogicalParent;
                 var bufferView = model.LogicalBufferViews[Values];
@@ -747,7 +820,6 @@ namespace SharpGLTF.Schema2
                 var buffer = bufferView.Content.Array;
                 var offset = bufferView.Content.Offset;
 
-                var type = typeof(T);
                 int size = GetSize<T>();
 
                 if (type == typeof(string))
@@ -794,15 +866,18 @@ namespace SharpGLTF.Schema2
                 {
                     Type t when t == typeof(bool) => sizeof(bool),
                     Type t when t == typeof(byte) => sizeof(byte),
+                    Type t when t == typeof(List<byte>) => sizeof(byte),
                     Type t when t == typeof(sbyte) => sizeof(sbyte),
                     Type t when t == typeof(ushort) => sizeof(ushort),
                     Type t when t == typeof(short) => sizeof(short),
                     Type t when t == typeof(uint) => sizeof(uint),
                     Type t when t == typeof(int) => sizeof(uint),
+                    Type t when t == typeof(List<int>) => sizeof(int),
                     Type t when t == typeof(ulong) => sizeof(ulong),
                     Type t when t == typeof(long) => sizeof(long),
                     Type t when t == typeof(float) => sizeof(float),
                     Type t when t == typeof(double) => sizeof(double),
+
                     _ => 0
                 };
             }
@@ -898,18 +973,6 @@ namespace SharpGLTF.Schema2
                 return result;
             }
 
-            private static List<T> GetItems<T>(byte[] buffer, int offset, int size, int count)
-            {
-                var result = new List<T>();
-
-                for (int i = 0; i < count; i++)
-                {
-                    var p = ConvertFromBytes<T>(buffer, offset + i * size);
-                    result.Add(p);
-                }
-
-                return result;
-            }
 
             public static T ConvertFromBytes<T>(byte[] buffer, int offset)
             {

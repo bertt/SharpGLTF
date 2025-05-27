@@ -2,7 +2,6 @@
 using SharpGLTF.Geometry;
 using SharpGLTF.Geometry.VertexTypes;
 using SharpGLTF.Materials;
-using SharpGLTF.Memory;
 using SharpGLTF.Scenes;
 using SharpGLTF.Validation;
 using System;
@@ -43,6 +42,8 @@ namespace SharpGLTF.Schema2.Tiles3D
             var vector3Value = new Vector3(1, 2, 3);
             var vector4Value = new Vector4(1, 2, 3, 4);
             var matrix4x4Value = Matrix4x4.CreateTranslation(1, 2, 3);
+
+            var uint8ArrayValues = new List<List<byte>> { new List<byte>(){byteValue} };    
             var item1 = new List<int> { 1, 2, 3 };
             var intArrayValues = new List<List<int>>() { item1 };
 
@@ -110,6 +111,9 @@ namespace SharpGLTF.Schema2.Tiles3D
 
             var enumProperty = schemaClass
                 .UseProperty("enum").WithEnumeration(enumValue, "ExampleEnumValueA");
+
+            var listUInt8Property = schemaClass
+                .UseProperty("listUInt8").WithUInt8ArrayType();
 
             var listIntProperty = schemaClass
                 .UseProperty("listInt").WithInt32ArrayType();
@@ -185,12 +189,16 @@ namespace SharpGLTF.Schema2.Tiles3D
                 .UseProperty(enumProperty)
                 .SetValues((short)0);
 
+            propertyTable.
+                UseProperty(listUInt8Property)
+                .SetArrayValues(uint8ArrayValues);
+
             propertyTable
                 .UseProperty(listIntProperty)
                 .SetArrayValues(intArrayValues);
 
             var properties = propertyTable.Properties;
-            Assert.That(properties.Count == 18);
+            Assert.That(properties.Count == 19);
 
             var propertyBoolean = properties["bool"];
             var bools = propertyBoolean.GetValues<bool>();
@@ -272,6 +280,18 @@ namespace SharpGLTF.Schema2.Tiles3D
             var enums = propertyEnum.GetValues<short>();
             Assert.That(enums.Count == 1);
             Assert.That(enums.ToArray()[0] == 0);
+
+            var propertyListUInt8 = properties["listUInt8"];
+            var listUInts8 = propertyListUInt8.GetValues<List<byte>>();
+            Assert.That(listUInts8.Count == 1);
+            Assert.That(listUInts8.ToArray()[0][0] == uint8ArrayValues.ToArray()[0][0]);
+
+            var propertyListInt = properties["listInt"];
+            var listInts = propertyListInt.GetValues<List<int>>();
+
+            Assert.That(listInts.Count == 1);
+            Assert.That(listInts.ToArray()[0][0] == intArrayValues.ToArray()[0][0]);
+
         }
 
         // Test files are from https://github.com/CesiumGS/3d-tiles-validator/tree/main/specs/data/gltfExtensions/structuralMetadata
