@@ -15,6 +15,7 @@ namespace SharpGLTF
             yield return new ExtMeshFeaturesExtension();
             yield return new ExtInstanceFeaturesExtension();
             yield return new ExtStructuralMetadataExtension();
+            yield return new KHRSpzGaussianSplatsCompressionExtension();
         }
 
         #endregion
