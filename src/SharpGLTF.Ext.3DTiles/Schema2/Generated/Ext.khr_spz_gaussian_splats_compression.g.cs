@@ -28,7 +28,7 @@ using JSONWRITER = System.Text.Json.Utf8JsonWriter;
 using FIELDINFO = SharpGLTF.Reflection.FieldInfo;
 
 
-namespace SharpGLTF.Schema2
+namespace SharpGLTF.Schema2.Tiles3D
 {
 	using Collections;
 
@@ -39,7 +39,7 @@ namespace SharpGLTF.Schema2
 	[System.Diagnostics.CodeAnalysis.DynamicallyAccessedMembers(System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.NonPublicConstructors | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicConstructors)]
 	#endif
 	[global::System.CodeDom.Compiler.GeneratedCodeAttribute("SharpGLTF.CodeGen", "1.0.0.0")]
-	partial class KHR_spz_gaussian_splats_compressionglTFMeshPrimitiveExtension : ExtraProperties
+	partial class SpzGaussianSplatsCompression : ExtraProperties
 	{
 	
 		#region reflection
@@ -81,7 +81,7 @@ namespace SharpGLTF.Schema2
 		{
 			switch (jsonPropertyName)
 			{
-				case "bufferView": DeserializePropertyValue<KHR_spz_gaussian_splats_compressionglTFMeshPrimitiveExtension, Int32>(ref reader, this, out _bufferView); break;
+				case "bufferView": DeserializePropertyValue<SpzGaussianSplatsCompression, Int32>(ref reader, this, out _bufferView); break;
 				default: base.DeserializeProperty(jsonPropertyName,ref reader); break;
 			}
 		}
