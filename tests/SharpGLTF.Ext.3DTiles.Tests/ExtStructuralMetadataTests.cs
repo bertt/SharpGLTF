@@ -25,12 +25,17 @@ namespace SharpGLTF.Schema2.Tiles3D
         [Test(Description = "Read Structural Metatadata Arrays")]
         public void ReadStructuralMetadataArraysTest()
         {
-            byte byteValue = 100;
-
-            var uint8ArrayValues = new List<List<byte>> { new List<byte>() { byteValue } };
-            var item1 = new List<int> { 1, 2, 3 };
-            var item2 = new List<int> { 4, 5, 6 };
-            var intArrayValues = new List<List<int>>() { item1, item2 };
+            var boolArrayValues = new List<List<bool>>() { new List<bool> { false, false, false}, new List<bool> { true, true, true } };
+            var uint8ArrayValues = new List<List<byte>>() { new List<byte> { 1, 2, 3 }, new List<byte> { 4, 5, 6 } };
+            var int8ArrayValues = new List<List<sbyte>>() { new List<sbyte> { 1, 2, 3 }, new List<sbyte> { 4, 5, 6 } };
+            var uint16ArrayValues = new List<List<ushort>>() { new List<ushort> { 1, 2, 3 }, new List<ushort> { 4, 5, 6 } };
+            var int16ArrayValues = new List<List<short>>() { new List<short> { 1, 2, 3 }, new List<short> { 4, 5, 6 } };
+            var uintArrayValues = new List<List<uint>>() { new List<uint> { 1, 2, 3 }, new List<uint> { 4, 5, 6 } };
+            var intArrayValues = new List<List<int>>() { new List<int> { 1, 2, 3 }, new List<int> { 4, 5, 6 } };
+            var uint64ArrayValues = new List<List<ulong>>() { new List<ulong> { 1, 2, 3 }, new List<ulong> { 4, 5, 6 } };
+            var int64ArrayValues = new List<List<long>>() { new List<long> { 1, 2, 3 }, new List<long> { 4, 5, 6 } };
+            var floatArrayValues = new List<List<float>>() { new List<float> { 1, 2, 3 }, new List<float> { 4, 5, 6 } };
+            var doubleArrayValues = new List<List<double>>() { new List<double> { 1, 2, 3 }, new List<double> { 4, 5, 6 } };
 
             var material = MaterialBuilder.CreateDefault().WithDoubleSide(true);
             var mesh = new MeshBuilder<VertexPosition>("mesh");
@@ -44,36 +49,145 @@ namespace SharpGLTF.Schema2.Tiles3D
             var schema = rootMetadata.UseEmbeddedSchema("schema_001");
             var schemaClass = schema.UseClassMetadata("triangles");
 
-            //var listUInt8Property = schemaClass
-            //    .UseProperty("listUInt8").WithUInt8ArrayType();
+            var listBoolProperty = schemaClass
+                .UseProperty("listBool").WithBooleanArrayType();
+
+            var listUInt8Property = schemaClass
+                .UseProperty("listUInt8").WithUInt8ArrayType();
+
+            var listInt8Property = schemaClass
+                .UseProperty("listInt8").WithInt8ArrayType();
+
+            var listUInt16Property = schemaClass
+                .UseProperty("listUInt16").WithUInt16ArrayType();
+
+            var listInt16Property = schemaClass
+                .UseProperty("listInt16").WithInt16ArrayType();
+
+            var listUIntProperty = schemaClass
+                .UseProperty("listUInt").WithUInt32ArrayType();
 
             var listIntProperty = schemaClass
                 .UseProperty("listInt").WithInt32ArrayType(2);
 
+            var listUInt64Property = schemaClass
+                .UseProperty("listUInt64").WithUInt64ArrayType(2);
+
+            var listInt64Property = schemaClass
+                .UseProperty("listInt64").WithInt64ArrayType(2);
+
+            var listFloatProperty = schemaClass
+                .UseProperty("listFloat").WithFloat32ArrayType(2);
+
+            var listDoubleProperty = schemaClass
+                .UseProperty("listDouble").WithFloat64ArrayType(2);
 
             var propertyTable = schemaClass.AddPropertyTable(2);
 
-            //propertyTable.
-            //    UseProperty(listUInt8Property)
-            //    .SetArrayValues(uint8ArrayValues);
+            propertyTable
+                .UseProperty(listBoolProperty)
+                .SetArrayValues(boolArrayValues);
+
+            propertyTable
+                .UseProperty(listUInt8Property)
+                .SetArrayValues(uint8ArrayValues);
+
+            propertyTable
+                .UseProperty(listInt8Property)
+                .SetArrayValues(int8ArrayValues);
+
+            propertyTable
+                .UseProperty(listUInt16Property)
+                .SetArrayValues(uint16ArrayValues);
+
+            propertyTable
+                .UseProperty(listInt16Property)
+                .SetArrayValues(int16ArrayValues);
+            
+            propertyTable
+                 .UseProperty(listUIntProperty)
+                 .SetArrayValues(uintArrayValues);
 
             propertyTable
                 .UseProperty(listIntProperty)
                 .SetArrayValues(intArrayValues);
 
+            propertyTable
+                .UseProperty(listUInt64Property)
+                .SetArrayValues(uint64ArrayValues);
+
+            propertyTable
+                .UseProperty(listInt64Property)
+                .SetArrayValues(int64ArrayValues);
+
+            propertyTable
+                .UseProperty(listFloatProperty)
+                .SetArrayValues(floatArrayValues);
+
+            propertyTable
+                .UseProperty(listDoubleProperty)
+                .SetArrayValues(doubleArrayValues);
+
             var properties = propertyTable.Properties;
 
-            //var propertyListUInt8 = properties["listUInt8"];
-            //var listUInts8 = propertyListUInt8.GetValues<List<byte>>();
-            //Assert.That(listUInts8.Count == 1);
-            //Assert.That(listUInts8.ToArray()[0][0] == uint8ArrayValues.ToArray()[0][0]);
+            //list of bools is kinda complicated
+            //var propertyListBool = properties["listBool"];
+            //var listBool = propertyListBool.GetValues<List<bool>>();
+            //Assert.That(listBool.Count == 2);
+            //Assert.That(listBool.ToArray()[0][0] == boolArrayValues.ToArray()[0][0]);
+
+            var propertyListUInt8 = properties["listUInt8"];
+            var listUInts8 = propertyListUInt8.GetValues<List<byte>>();
+            Assert.That(listUInts8.Count == 2);
+            Assert.That(listUInts8.ToArray()[0][0] == uint8ArrayValues.ToArray()[0][0]);
+
+            var propertyListInt8 = properties["listInt8"];
+            var listInts8 = propertyListInt8.GetValues<List<sbyte>>();
+            Assert.That(listInts8.Count == 2);
+            Assert.That(listInts8.ToArray()[0][0] == int8ArrayValues.ToArray()[0][0]);
+
+            var propertyListUInt16 = properties["listUInt16"];
+            var listUInts16 = propertyListUInt16.GetValues<List<ushort>>();
+            Assert.That(listUInts16.Count == 2);
+            Assert.That(listUInts16.ToArray()[0][0] == uint16ArrayValues.ToArray()[0][0]);
+
+            var propertyListInt16 = properties["listInt16"];
+            var listInts16 = propertyListInt16.GetValues<List<short>>();
+            Assert.That(listInts16.Count == 2);
+            Assert.That(listInts16.ToArray()[0][0] == int16ArrayValues.ToArray()[0][0]);
+
+            var propertyListUInt = properties["listUInt"];
+            var listUInts32 = propertyListUInt.GetValues<List<uint>>();
+            Assert.That(listUInts32.Count == 2);
+            Assert.That(listUInts32.ToArray()[0][0] == uintArrayValues.ToArray()[0][0]);
 
             var propertyListInt = properties["listInt"];
             var listInts = propertyListInt.GetValues<List<int>>();
-
             Assert.That(listInts.Count == 2);
             Assert.That(listInts.ToArray()[0][0] == intArrayValues.ToArray()[0][0]);
             Assert.That(listInts.ToArray()[1][0] == intArrayValues.ToArray()[1][0]);
+
+            var propertyListUInt64 = properties["listUInt64"];
+            var listUInts64 = propertyListUInt64.GetValues<List<ulong>>();
+            Assert.That(listUInts64.Count == 2);
+            Assert.That(listUInts64.ToArray()[0][0] == uint64ArrayValues.ToArray()[0][0]);
+
+            var propertyListInt64 = properties["listInt64"];
+            var listInts64 = propertyListInt64.GetValues<List<long>>();
+            Assert.That(listInts64.Count == 2);
+            Assert.That(listInts64.ToArray()[0][0] == int64ArrayValues.ToArray()[0][0]);
+
+            var propertyListFloat = properties["listFloat"];
+            var listFloat = propertyListFloat.GetValues<List<float>>();
+            Assert.That(listFloat.Count == 2);
+            Assert.That(listFloat.ToArray()[0][0] == floatArrayValues.ToArray()[0][0]);
+
+            var propertyListDouble = properties["listDouble"];
+            var listDouble = propertyListDouble.GetValues<List<double>>();
+            Assert.That(listDouble.Count == 2);
+            Assert.That(listDouble.ToArray()[0][0] == doubleArrayValues.ToArray()[0][0]);
+
+            // Todo: Vector2, Vector3, Vector4, Matrix4x4, Enum
         }
 
 

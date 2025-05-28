@@ -751,21 +751,28 @@ namespace SharpGLTF.Schema2
 
                 var model = LogicalParent.LogicalParent.LogicalParent;
                 var bufferView = model.LogicalBufferViews[Values];
-                var count = metadataProperty.Count; // 3
-                var size = bufferView.Content.Count / count; // 12
+                var countList = metadataProperty.Count; // 3
+
+                var size = bufferView.Content.Count / countList; // 12
                 var items = size / elementSize;
                 var bufferViewArray = bufferView.Content.Array;
 
-                List<T> result;
+                return argumentType switch
+                {
+                    var type when type == typeof(bool) => ProcessItems<bool>(bufferViewArray, (int)items, (int)countList, elementSize).Cast<T>().ToList().AsReadOnly(),
+                    var type when type == typeof(byte) => ProcessItems<byte>(bufferViewArray, (int)items, (int)countList, elementSize).Cast<T>().ToList().AsReadOnly(),
+                    var type when type == typeof(sbyte) => ProcessItems<sbyte>(bufferViewArray, (int)items, (int)countList, elementSize).Cast<T>().ToList().AsReadOnly(),
+                    var type when type == typeof(ushort) => ProcessItems<ushort>(bufferViewArray, (int)items, (int)countList, elementSize).Cast<T>().ToList().AsReadOnly(),
+                    var type when type == typeof(short) => ProcessItems<short>(bufferViewArray, (int)items, (int)countList, elementSize).Cast<T>().ToList().AsReadOnly(),
+                    var type when type == typeof(uint) => ProcessItems<uint>(bufferViewArray, (int)items, (int)countList, elementSize).Cast<T>().ToList().AsReadOnly(),
+                    var type when type == typeof(int) => ProcessItems<int>(bufferViewArray, (int)items, (int)countList, elementSize).Cast<T>().ToList().AsReadOnly(),
+                    var type when type == typeof(ulong) => ProcessItems<ulong>(bufferViewArray, (int)items, (int)countList, elementSize).Cast<T>().ToList().AsReadOnly(),
+                    var type when type == typeof(long) => ProcessItems<long>(bufferViewArray, (int)items, (int)countList, elementSize).Cast<T>().ToList().AsReadOnly(),
+                    var type when type == typeof(float) => ProcessItems<float>(bufferViewArray, (int)items, (int)countList, elementSize).Cast<T>().ToList().AsReadOnly(),
+                    var type when type == typeof(double) => ProcessItems<double>(bufferViewArray, (int)items, (int)countList, elementSize).Cast<T>().ToList().AsReadOnly(),
+                    _ => throw new NotSupportedException($"Unsupported type: {argumentType}")
+                };
 
-                if (argumentType == typeof(int))
-                {
-                    return ProcessItems<int>(bufferViewArray, (int)items, (int)count, elementSize).Cast<T>().ToList().AsReadOnly();
-                }
-                else if (argumentType == typeof(byte))
-                {
-                    // return ProcessItems<byte>(bufferViewArray, (int)items, (int)size, (int)count, elementSize).Cast<T>().ToList().AsReadOnly();
-                }
                 return null;
             }
 
@@ -866,18 +873,27 @@ namespace SharpGLTF.Schema2
                 return typeof(T) switch
                 {
                     Type t when t == typeof(bool) => sizeof(bool),
+                    Type t when t == typeof(List<bool>) => sizeof(bool),
                     Type t when t == typeof(byte) => sizeof(byte),
                     Type t when t == typeof(List<byte>) => sizeof(byte),
                     Type t when t == typeof(sbyte) => sizeof(sbyte),
+                    Type t when t == typeof(List<sbyte>) => sizeof(sbyte),
                     Type t when t == typeof(ushort) => sizeof(ushort),
+                    Type t when t == typeof(List<ushort>) => sizeof(ushort),
                     Type t when t == typeof(short) => sizeof(short),
+                    Type t when t == typeof(List<short>) => sizeof(short),
                     Type t when t == typeof(uint) => sizeof(uint),
+                    Type t when t == typeof(List<uint>) => sizeof(uint),
                     Type t when t == typeof(int) => sizeof(uint),
                     Type t when t == typeof(List<int>) => sizeof(int),
                     Type t when t == typeof(ulong) => sizeof(ulong),
+                    Type t when t == typeof(List<ulong>) => sizeof(ulong),
                     Type t when t == typeof(long) => sizeof(long),
+                    Type t when t == typeof(List<long>) => sizeof(long),
                     Type t when t == typeof(float) => sizeof(float),
+                    Type t when t == typeof(List<float>) => sizeof(float),
                     Type t when t == typeof(double) => sizeof(double),
+                    Type t when t == typeof(List<double>) => sizeof(double),
 
                     _ => 0
                 };
