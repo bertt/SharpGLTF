@@ -23,6 +23,7 @@
             ExtensionsFactory.RegisterExtension<MeshPrimitive, MeshExtMeshFeatures>("EXT_mesh_features", p => new MeshExtMeshFeatures(p));
             ExtensionsFactory.RegisterExtension<ModelRoot, EXTStructuralMetadataRoot>("EXT_structural_metadata", p => new EXTStructuralMetadataRoot(p));
             ExtensionsFactory.RegisterExtension<MeshPrimitive, ExtStructuralMetadataMeshPrimitive>("EXT_structural_metadata", p => new ExtStructuralMetadataMeshPrimitive(p));
+            ExtensionsFactory.RegisterExtension<MeshPrimitive, SpzGaussianSplatsCompression>("KHR_spz_gaussian_splats_compression", p => new SpzGaussianSplatsCompression(p));
         }
     }
 }
