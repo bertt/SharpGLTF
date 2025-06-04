@@ -1,5 +1,6 @@
 ﻿
 using NUnit.Framework;
+using System.Linq;
 
 namespace SharpGLTF.Schema2.Tiles3D
 {
@@ -27,6 +28,14 @@ namespace SharpGLTF.Schema2.Tiles3D
             var bytes = primitive.GetSpzGaussianSplatsCompression();
             Assert.That(bytes, Is.Not.Null);
             Assert.That(bytes.Length, Is.EqualTo(1512464));
+
+            var vcounts = primitive.VertexAccessors.Values
+                .Select(item => item.Count)
+                .Distinct()
+                .ToList();
+
+            var verticesCount = vcounts[0];
+            Assert.That(verticesCount, Is.EqualTo(73172), "Expected 73172 vertices in the primitive.");
         }
     }
 }
