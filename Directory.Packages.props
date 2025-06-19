@@ -9,6 +9,7 @@
   <ItemGroup>
     <PackageVersion Include="System.Text.Json" Version="9.0.6" />
     <PackageVersion Include="System.Drawing.Common" Version="9.0.6" />
+    <PackageVersion Include="YellowDogMan.Spz.NET" Version="1.0.1" />
   </ItemGroup>
 
   <ItemGroup>

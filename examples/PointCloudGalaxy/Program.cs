@@ -53,6 +53,8 @@ namespace PointCloudGalaxy
             model.UseScene("Default")
                 .CreateNode().WithMesh(model.LogicalMeshes[0]);
 
+            var points = Toolkit.EvaluatePoints(model.LogicalMeshes[0]);
+
             // save the model as GLB
             model.SaveGLB("Galaxy.glb");
         }

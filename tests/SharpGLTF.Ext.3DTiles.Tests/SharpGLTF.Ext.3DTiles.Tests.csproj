@@ -17,7 +17,14 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.NET.Test.Sdk" />    
+    <PackageReference Include="Microsoft.NET.Test.Sdk" />
+    <PackageReference Include="YellowDogMan.Spz.NET" />    
+  </ItemGroup>  
+
+  <ItemGroup>
+    <None Update="TestFixtures\spzgaussiansplatscompression\tower.spz">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
   
 </Project>
