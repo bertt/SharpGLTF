@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
+using BYTES = System.ArraySegment<System.Byte>;
 using DIMENSIONS = SharpGLTF.Schema2.DimensionType;
 using ENCODING = SharpGLTF.Schema2.EncodingType;
 
@@ -37,6 +38,18 @@ namespace SharpGLTF.Memory
             if (bb.Offset >= aa.Offset + aa.Count) return false;
 
             return true;
+        }
+
+        internal BYTES _GetBytes()
+        {
+            var o = this.Attribute.ByteOffset;
+            var l = this.Attribute.StepByteLength * this.Attribute.ItemsCount;
+
+            var data = Data.Slice(o);
+
+            data = data.Slice(0, Math.Min(data.Count, l));
+
+            return data;
         }
 
         public static bool HaveOverlappingBuffers(IEnumerable<MemoryAccessor> abc)
@@ -74,7 +87,7 @@ namespace SharpGLTF.Memory
 
             if (weights0 == null) return;
 
-            var len = weights0.Attribute.ItemByteLength;
+            var len = weights0.Attribute.ByteLength;
             Span<Byte> dst = stackalloc byte[len * 2];
 
             var zip = weights0.GetItemsAsRawBytes().Zip(weights1.GetItemsAsRawBytes(), (a, b) => (a, b));
@@ -188,7 +201,7 @@ namespace SharpGLTF.Memory
 
             if (weights0.Attribute.Encoding != weights1.Attribute.Encoding) throw new ArgumentException("WEIGHTS_0 and WEIGHTS_1 format mismatch.", nameof(weights1));
 
-            var len = weights0.Attribute.ItemByteLength;
+            var len = weights0.Attribute.ByteLength;
             Span<Byte> dst = stackalloc byte[len * 2];
 
             var zip = weights0.GetItemsAsRawBytes()
@@ -280,11 +293,7 @@ namespace SharpGLTF.Memory
             }
 
             var minimum = min.Select(item => (float)item).ToArray();
-            var maximum = max.Select(item => (float)item).ToArray();
-
-            var xinfo = memory.Attribute;
-            xinfo.Dimensions = DIMENSIONS.SCALAR;
-            memory = new MemoryAccessor(memory.Data, xinfo);
+            var maximum = max.Select(item => (float)item).ToArray();            
 
             var array = new MultiArray(
                 memory.Data,
