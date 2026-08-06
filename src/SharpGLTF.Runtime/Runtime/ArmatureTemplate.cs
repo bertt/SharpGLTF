@@ -48,32 +48,38 @@ namespace SharpGLTF.Runtime
             {
                 var nidx = srcNode.Value;
 
+                var selfIdx = indexSolver(srcNode.Key);
+
                 // parent index
-                var pidx = indexSolver(srcNode.Key.VisualParent);
+                var parentIdx = indexSolver(srcNode.Key.VisualParent);
 
                 // child indices
-                var cidx = srcNode.Key.VisualChildren
+                var childIndices = srcNode.Key.VisualChildren
                     .Select(n => indexSolver(n))
                     .ToArray();
 
-                dstNodes[nidx] = new NodeTemplate(srcNode.Key, pidx, cidx, options);
+                dstNodes[nidx] = new NodeTemplate(srcNode.Key, selfIdx, parentIdx, childIndices, options);
             }
 
             // gather materials
 
-            var dstMaterials = srcNodes
+            var srcMaterials = srcNodes
                 .Keys
                 .Select(item => item.Mesh)
                 .Where(item => item != null)
                 .SelectMany(mesh => mesh.Primitives)
                 .Select(prim => prim.Material)
                 .Where(mat => mat != null)
+                .Distinct();
+
+            var dstMaterials = srcMaterials
                 .Select(mat => new MaterialTemplate(mat, options))
                 .ToArray();
 
             // gather animation durations.
 
-            var dstTracks = srcScene.LogicalParent
+            var dstTracks = srcScene
+                .LogicalParent
                 .LogicalAnimations
                 .Select(item => new AnimationTrackInfo(item.Name, RuntimeOptions.ConvertExtras(item, options), item.Duration))
                 .ToArray();
@@ -136,6 +142,70 @@ namespace SharpGLTF.Runtime
         /// Gets the animations tracks info.
         /// </summary>
         public IReadOnlyList<AnimationTrackInfo> Tracks => _AnimationTracks;
+
+        #endregion
+
+        #region Core
+
+        internal void ApplyDefaultPoseTo(ArmatureInstance instance)
+        {
+            ApplyAnimationTo(instance, -1, 0);
+        }
+
+        internal void ApplyAnimationTo(ArmatureInstance instance, int trackLogicalIndex, float time, bool looped = true)
+        {
+            System.Diagnostics.Debug.Assert(instance._Template == this, "instance and template mismatch");
+
+            if (looped && trackLogicalIndex >= 0)
+            {
+                var duration = _AnimationTracks[trackLogicalIndex].Duration;
+                if (duration > 0) time %= duration;
+            }
+
+            // apply            
+
+            for (int i = 0; i < _NodeTemplates.Length; i++)
+            {
+                var srcTemplate = _NodeTemplates[i];
+                var dstInstance = instance.LogicalNodes[i];
+
+                srcTemplate.ApplyAnimationFrame(dstInstance, trackLogicalIndex, time);
+            }
+        }
+
+        internal void ApplyAnimationTo(ArmatureInstance instance, (int TrackIdx, float Time, float Weight)[] blended)
+        {
+            System.Diagnostics.Debug.Assert(instance._Template == this, "instance and template mismatch");
+
+            Guard.NotNull(blended, nameof(blended));
+
+            // prepare weights
+
+            Span<int> tracks = stackalloc int[blended.Length];
+            Span<float> times = stackalloc float[blended.Length];
+            Span<float> weights = stackalloc float[blended.Length];
+
+            float w = blended.Sum(item => item.Weight);
+
+            w = w == 0 ? 1 : 1 / w;
+
+            for (int i = 0; i < blended.Length; ++i)
+            {
+                tracks[i] = blended[i].TrackIdx;
+                times[i] = blended[i].Time;
+                weights[i] = blended[i].Weight * w;
+            }
+
+            // apply
+
+            for (int i = 0; i < _NodeTemplates.Length; i++)
+            {
+                var srcTemplate = _NodeTemplates[i];
+                var dstInstance = instance.LogicalNodes[i];
+
+                srcTemplate.ApplyAnimationFrame(dstInstance, tracks, times, weights);
+            }
+        }        
 
         #endregion
     }

@@ -69,6 +69,7 @@ namespace SharpGLTF.Scenes
             clone._Scale = this._Scale?.Clone();
             clone._Rotation = this._Rotation?.Clone();
             clone._Translation = this._Translation?.Clone();
+            clone._Visibility = this._Visibility?.Clone();
 
             foreach (var c in _Children)
             {
@@ -90,6 +91,8 @@ namespace SharpGLTF.Scenes
         private Animations.AnimatableProperty<Vector3> _Scale;
         private Animations.AnimatableProperty<Quaternion> _Rotation;
         private Animations.AnimatableProperty<Vector3> _Translation;
+        
+        private Animations.AnimatableProperty<Boolean> _Visibility;
 
         #endregion
 
@@ -119,7 +122,12 @@ namespace SharpGLTF.Scenes
         /// <summary>
         /// Gets a value indicating whether this <see cref="NodeBuilder"/> has animations.
         /// </summary>
-        public bool HasAnimations => (_Scale?.IsAnimated ?? false) || (_Rotation?.IsAnimated ?? false) || (_Translation?.IsAnimated ?? false);
+        public bool HasAnimations => HasTransformAnimations || (_Visibility?.IsAnimated ?? false);
+
+        /// <summary>
+        /// Gets a value indicating whether this <see cref="NodeBuilder"/> has SRT animations.
+        /// </summary>
+        public bool HasTransformAnimations => (_Scale?.IsAnimated ?? false) || (_Rotation?.IsAnimated ?? false) || (_Translation?.IsAnimated ?? false);
 
         /// <summary>
         /// Gets the current Scale transform, or null.
@@ -160,7 +168,7 @@ namespace SharpGLTF.Scenes
                 Guard.IsTrue(value.IsValid, nameof(value));
 
                 // we cannot set a matrix while holding animation tracks because it would destroy them.
-                if (HasAnimations) value = value.GetDecomposed();
+                if (HasTransformAnimations) value = value.GetDecomposed();
 
                 if (value.IsSRT)
                 {
@@ -232,6 +240,28 @@ namespace SharpGLTF.Scenes
 
         #endregion
 
+        #region properties - visibility
+
+        public Animations.AnimatableProperty<bool> Visibility => _Visibility;
+
+        public bool? IsVisible
+        {
+            get => _Visibility?.Value;
+            set
+            {
+                if (value == null)
+                {
+                    _Visibility = null;
+                    return;
+                }
+
+                _Visibility ??= new Animations.AnimatableProperty<bool>();
+                _Visibility.Value = value == true;
+            }
+        }
+
+        #endregion
+
         #region API - hierarchy
 
         public NodeBuilder CreateNode(string name = null)
@@ -260,25 +290,25 @@ namespace SharpGLTF.Scenes
         /// </summary>
         /// <param name="joints">A collection of joints.</param>
         /// <returns>True if the joints can be used for skinning.</returns>
-        public static bool IsValidArmature(IEnumerable<NodeBuilder> joints)
+        public static bool IsValidArmature(IEnumerable<NodeBuilder> joints, out string reason)
         {
-            if (joints == null) return false;
+            reason = null;
+
+            if (joints == null) { reason = "null collection"; return false; }
 
             joints = joints.EnsureList();
 
-            if (!joints.Any()) return false;
-            if (joints.Any(item => item == null)) return false;
+            if (!joints.Any()) { reason = "empty collection"; return false; }
+            if (joints.Any(item => item == null)) { reason = "collection has null items"; return false; }
 
             var root = joints.First().Root;
 
             // check if all joints share the same root
-            if (!joints.All(item => Object.ReferenceEquals(item.Root, root))) return false;
-
-            var nameGroups = Flatten(root)
-                .Where(item => item.Name != null)
-                .GroupBy(item => item.Name);
-
-            if (nameGroups.Any(group => group.Count() > 1)) return false;
+            if (!joints.All(item => Object.ReferenceEquals(item.Root, root)))
+            {
+                reason = "all joints must be part of the same node tree";
+                return false;
+            }            
 
             return true;
         }
@@ -458,6 +488,21 @@ namespace SharpGLTF.Scenes
                     child.LocalTransform = w;
                 }
             }
+        }
+
+        #endregion
+
+        #region visibility
+
+        public Animations.AnimatableProperty<bool> UseVisibility()
+        {
+            if (_Visibility == null)
+            {
+                _Visibility = new Animations.AnimatableProperty<bool>();
+                _Visibility.Value = true;
+            }
+
+            return _Visibility;
         }
 
         #endregion

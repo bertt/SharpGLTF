@@ -44,21 +44,7 @@ namespace SharpGLTF.CodeGen
 
             t.RuntimeNamespace = runtimeNamespace;
             t.RuntimeName = runtimeName;
-        }
-
-        public void AddRuntimeComment(string persistentName, string comment)
-        {
-            if (!_Types.TryGetValue(persistentName, out _RuntimeType t)) return;
-
-            t.RuntimeComments.Add(comment);
-        }
-
-        public IReadOnlyList<string> GetRuntimeComments(SchemaType cls)
-        {
-            return !_TryGetType(cls, out var rtype)
-                ? Array.Empty<string>()
-                : (IReadOnlyList<string>)rtype.RuntimeComments;
-        }
+        }        
 
         /// <summary>
         /// Gets the runtime name associated to the type with the given <paramref name="persistentName"/>
@@ -80,8 +66,6 @@ namespace SharpGLTF.CodeGen
             return _Types[persistentName].RuntimeNamespace ?? Constants.OutputNamespace;
         }
 
-
-
         public void SetDefaultCollectionContainer(string container) { _DefaultCollectionContainer = container; }
 
         public void SetFieldToChildrenList(SchemaType.Context ctx, string persistentName, string fieldName)
@@ -100,6 +84,20 @@ namespace SharpGLTF.CodeGen
             var field = classType.UseField(fieldName);
             var runtimeName = this.GetRuntimeName(persistentName);
             this.SetCollectionContainer(field, $"ChildrenDictionary<TItem,{runtimeName}>");
+        }
+
+        public void AddRuntimeComment(string persistentName, string comment)
+        {
+            if (!_Types.TryGetValue(persistentName, out _RuntimeType t)) return;
+
+            t.RuntimeComments.Add(comment);
+        }
+
+        public IReadOnlyList<string> GetRuntimeComments(SchemaType cls)
+        {
+            return !_TryGetType(cls, out var rtype)
+                ? Array.Empty<string>()
+                : (IReadOnlyList<string>)rtype.RuntimeComments;
         }
 
         public void DeclareClass(ClassType type)
@@ -162,9 +160,9 @@ namespace SharpGLTF.CodeGen
 
             if (_Types.TryGetValue(key, out _RuntimeType rtype)) return rtype;
 
-            rtype = new _RuntimeType(stype)
+            rtype = new _RuntimeType()
             {
-                RuntimeName = _SanitizeName(stype.PersistentName)
+                RuntimeName = _SanitizeName(stype.PersistentName)                
             };
 
             _Types[key] = rtype;
@@ -192,6 +190,8 @@ namespace SharpGLTF.CodeGen
                 case ObjectType anyType: return anyType.PersistentName;
 
                 case StringType strType: return strType.PersistentName;
+
+                case UriType uriType: return uriType.PersistentName;
 
                 case BlittableType blitType:
                     {
@@ -451,7 +451,26 @@ namespace SharpGLTF.CodeGen
             classDecl += "partial ";
             classDecl += "class ";
             classDecl += _GetRuntimeName(type);
-            if (type.BaseClass != null) classDecl += $" : {_GetRuntimeName(type.BaseClass)}";
+
+            if (type.BaseClass != null)
+            {
+                var baseClass = _GetRuntimeName(type.BaseClass);
+
+                // if type is an extension, replace ExtraProperties base class
+                // with the more meaningful ExtensionBase class
+                if (baseClass == "ExtraProperties" && type.PersistentName.EndsWith(" EXTENSION", StringComparison.OrdinalIgnoreCase))
+                {
+                    var parentIdentifier = type.Identifier.Split('.')[0];
+                    // parentIdentifier is glTF, material, node, etc
+                    // var parentClass = type._Owner.FindClass(parentIdentifier);
+                    // var parentName = _GetRuntimeName(parentClass);
+
+                    baseClass = "ExtensionBase";
+                }
+
+                classDecl += $" : {baseClass}";
+            }
+
             return classDecl;
         }
         

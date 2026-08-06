@@ -38,15 +38,7 @@ namespace SharpGLTF.Schema2.LoadAndSave
 
             var perf = System.Diagnostics.Stopwatch.StartNew();
 
-            try
-            {
-                model = ModelRoot.Load(f, settings);                
-            }
-            catch (Exception ex)
-            {
-                TestContext.Progress.WriteLine($"Failed {f.ToShortDisplayPath()}");
-                Assert.Fail(ex.Message);
-            }
+            model = ModelRoot.Load(f, settings);
 
             Assert.That(model, Is.Not.Null);
 
@@ -66,7 +58,7 @@ namespace SharpGLTF.Schema2.LoadAndSave
                 // check extensions used
                 if (unsupportedExtensions.All(uex => !model.ExtensionsUsed.Contains(uex)))
                 {
-                    var detectedExtensions = model.GatherUsedExtensions().ToArray();
+                    var detectedExtensions = model.GatherUsedAndRequiredExtensions().Select(item => item.ext).ToArray();
                     Assert.That(detectedExtensions, Is.EquivalentTo(model.ExtensionsUsed));
                 }
             }
@@ -138,7 +130,16 @@ namespace SharpGLTF.Schema2.LoadAndSave
             {
                 _LoadModel(f, true);
             }
-        }        
+        }
+
+        [Explicit]
+        [TestCase("YetiSmall.glb")]
+        public void DebugModelsFromBabylonJs(string modelPath)
+        {
+            modelPath = TestFiles.GetBabylonJSModelsPaths().FirstOrDefault(item => item.EndsWith(modelPath));
+
+            _LoadModel(modelPath, true);
+        }
 
         [TestCase("TeapotsGalore.gltf")]
         [TestCase("GrassFieldInstanced.glb")]
@@ -348,7 +349,7 @@ namespace SharpGLTF.Schema2.LoadAndSave
             {
                 instance.Armature.SetAnimationFrame(anim.LogicalIndex, t);
 
-                var nodexform = instance.GetDrawableInstance(0).Transform;
+                var nodexform = instance.AsEnumerable().First().Transform;
 
                 TestContext.Out.WriteLine($"Animation at {t}");
 

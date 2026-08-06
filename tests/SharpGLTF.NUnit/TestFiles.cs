@@ -205,10 +205,13 @@ namespace SharpGLTF
         public static IReadOnlyList<string> GetBabylonJSModelsPaths()
         {
             var skipAlways = new string[]
-            {
+            {                
                 "ClearCoatTest.gltf", // validator reports errors.
                 "ClearCoatTest.glb", // validator reports errors.
-                "\\Elf\\Elf.gltf", // validator reports invalid inverse bind matrices.
+                "YetiSmall.glb", // draco compression
+                "FlightHelmetKTX\\FlightHelmet.gltf", // missing ExtensionsRequired
+                "StandardShaderBall\\StandardShaderBall.gltf", // missing .bin file
+                "\\Elf\\Elf.gltf", // validator reports invalid inverse bind matrices.                
                 "\\meshes\\Tests\\AssetGenerator", // already covered separately.
                 "\\meshes\\KHR_materials_volume_testing.glb", // draco compression-
                 "\\meshes\\Yeti\\MayaExport\\", // validator reports out of bounds accesor
@@ -217,13 +220,17 @@ namespace SharpGLTF
                 "\\meshes\\Buildings\\road gap.glb", // uses KHR_Draco compression  
                 "\\meshes\\Buildings\\Road corner.glb", // uses KHR_Draco compression  
                 "\\meshes\\Tests\\BadDraco\\Box-draco.glb", // uses KHR_Draco compression  
+                "\\mixamo\\Characters\\Big Vegas_optimized.glb", // draco
+                "\\mixamo\\Characters\\goblin_d_shareyko_optimized.glb", // draco
+
+               
             };            
 
             var files = _FindModelInDirectory(_BabylonJsMeshesDir);
 
             return files
-                .Where(item => !item.ToUpperInvariant().Contains("GLTF-DRACO"))
-                .Where(item => !item.ToUpperInvariant().Contains("GLTF-MESHOPT")) // not supported yet
+                .Where(item => !item.Contains("GLTF-DRACO", StringComparison.OrdinalIgnoreCase))
+                .Where(item => !item.Contains("GLTF-MESHOPT", StringComparison.OrdinalIgnoreCase)) // not supported yet
                 .Where(item => skipAlways.All(f => !item.Contains(f)))                
                 .OrderBy(item => item)                
                 .ToList();
