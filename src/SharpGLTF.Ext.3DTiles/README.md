@@ -30,6 +30,18 @@ Samples: https://github.com/CesiumGS/3d-tiles-samples/tree/main/glTF/EXT_structu
 
 Not supported: External schema and min/max/scale/offset properties for StructuralMetadataClassProperty and PropertyAttributeProperty
 
+### 3D Tiles 2.0 glTF extensions (draft)
+
+Generated from https://github.com/CesiumGS/glTF/tree/3d-tiles-2.0/extensions/2.1/Vendor (draft spec, may change).
+Call `Tiles3DExtensions.RegisterExtensions()` before reading or writing.
+
+- EXT_georeference, EXT_geospatial_crs (+ `_wkid`, `_wkt2`)
+- EXT_node_visibility_volume, EXT_node_visibility_conditions
+- EXT_voxels, 3DTILES_tileset_voxels
+- 3DTILES_horizon_occlusion_point, 3DTILES_implicit_tiling, 3DTILES_layers, 3DTILES_subtree, 3DTILES_tileset, 3DTILES_tileset_vectors
+
+Not registered: 3DTILES_shape_cylinder_region, 3DTILES_shape_ellipsoid_region and 3DTILES_shape_s2. They attach to the glTF 2.1 `shape` object, which the core library does not support. The classes are generated and usable on their own.
+
 ## Unit testing 
 
 ## Reading 3D Tiles glTF files

@@ -147,6 +147,13 @@ namespace SharpGLTF.CodeGen
 
         public void SetCollectionContainer(FieldInfo finfo, string container) { _UseField(finfo).CollectionContainer = container; }
 
+        public void SetCollectionContainer(FieldInfo finfo, string container, bool initialize)
+        {
+            var field = _UseField(finfo);
+            field.CollectionContainer = container;
+            field.InitializeCollection = initialize;
+        }
+
         #endregion
 
         #region core API
@@ -543,6 +550,13 @@ namespace SharpGLTF.CodeGen
             }
 
             if (f.FieldType is EnumType etype && etype.IsNullable) tdecl = tdecl + "?";            
+
+            if (_UseField(f).InitializeCollection)
+            {
+                yield return $"private {tdecl} {fname} = new {tdecl}();";
+                yield return string.Empty;
+                yield break;
+            }
 
             yield return string.IsNullOrEmpty(defval)
                 ? $"private {tdecl} {fname};"
