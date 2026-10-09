@@ -59,7 +59,7 @@ namespace SharpGLTF
                 foreach (var field in cls.Fields.Where(f => f.FieldType is ArrayType || f.FieldType is DictionaryType).ToList())
                 {
                     var container = field.FieldType is ArrayType ? "List<TItem>" : null;
-                    newEmitter.SetCollectionContainer(field, container, true);
+                    newEmitter.SetCollectionContainer(field, container);
                 }
             }
             foreach (var (title, className) in NestedTypes)

@@ -33,8 +33,6 @@ namespace SharpGLTF.CodeGen
 
             public string CollectionContainer { get; set; }
 
-            public bool InitializeCollection { get; set; }
-
             // MinVal, MaxVal, readonly, static
 
             // serialization sections

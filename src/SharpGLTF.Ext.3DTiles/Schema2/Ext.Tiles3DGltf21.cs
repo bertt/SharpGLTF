@@ -99,6 +99,8 @@ namespace SharpGLTF.Schema2.Tiles3D
     /// </summary>
     partial class ExtNodeVisibilityConditions
     {
+        public ExtNodeVisibilityConditions() { _conditions = new Dictionary<string, JsonNode>(); }
+
         /// <summary>The conditions, as a dictionary of condition names and their values.</summary>
         public IDictionary<string, JsonNode> Conditions
         {
@@ -112,6 +114,8 @@ namespace SharpGLTF.Schema2.Tiles3D
     /// </summary>
     partial class ExtNodeVisibilityConditionsRoot
     {
+        public ExtNodeVisibilityConditionsRoot() { _dimensions = new List<JsonNode>(); }
+
         /// <summary>The dimensions of the conditions. Each item is an object with a "name" and a "domain".</summary>
         public IReadOnlyList<JsonNode> Dimensions
         {
@@ -129,6 +133,12 @@ namespace SharpGLTF.Schema2.Tiles3D
     /// </summary>
     partial class Tiles3DVoxelPadding
     {
+        public Tiles3DVoxelPadding()
+        {
+            _before = new List<int>();
+            _after = new List<int>();
+        }
+
         public int[] Before { get => _before.Count == 0 ? null : _before.ToArray(); set { _CheckLength(value, _beforeMinItems, _beforeMaxItems); _before = value == null ? new List<int>() : new List<int>(value); } }
 
         public int[] After { get => _after.Count == 0 ? null : _after.ToArray(); set { _CheckLength(value, _afterMinItems, _afterMaxItems); _after = value == null ? new List<int>() : new List<int>(value); } }
@@ -145,6 +155,13 @@ namespace SharpGLTF.Schema2.Tiles3D
     /// </summary>
     partial class ExtVoxelsNode
     {
+        public ExtVoxelsNode()
+        {
+            _attributes = new Dictionary<string, int>();
+            _dimensions = new List<int>();
+            _noData = new Dictionary<string, double[]>();
+        }
+
         public int[] Dimensions
         {
             get => _dimensions.Count == 0 ? null : _dimensions.ToArray();
@@ -173,6 +190,8 @@ namespace SharpGLTF.Schema2.Tiles3D
     /// </summary>
     partial class Tiles3DTilesetVoxels
     {
+        public Tiles3DTilesetVoxels() { _dimensions = new List<int>(); }
+
         public int[] Dimensions
         {
             get => _dimensions.Count == 0 ? null : _dimensions.ToArray();
@@ -194,6 +213,8 @@ namespace SharpGLTF.Schema2.Tiles3D
     /// </summary>
     partial class Tiles3DHorizonOcclusionPoint
     {
+        public Tiles3DHorizonOcclusionPoint() { _horizonOcclusionPoint = new List<double>(); }
+
         /// <summary>The horizon occlusion point in an ellipsoid-scaled fixed frame (3 values).</summary>
         public double[] HorizonOcclusionPoint
         {
@@ -287,6 +308,8 @@ namespace SharpGLTF.Schema2.Tiles3D
     /// </summary>
     partial class Tiles3DLayersRoot
     {
+        public Tiles3DLayersRoot() { _layers = new List<Tiles3DLayer>(); }
+
         public IReadOnlyList<Tiles3DLayer> Layers
         {
             get => _layers;
@@ -330,6 +353,12 @@ namespace SharpGLTF.Schema2.Tiles3D
     /// </summary>
     partial class Tiles3DSubtree
     {
+        public Tiles3DSubtree()
+        {
+            _contentAttributes = new Dictionary<string, int>();
+            _tileAttributes = new Dictionary<string, int>();
+        }
+
         public Tiles3DSubtreeAvailability TileAvailability { get => _tileAvailability; set => _tileAvailability = value; }
 
         public Tiles3DSubtreeAvailability ContentAvailability { get => _contentAvailability; set => _contentAvailability = value; }
